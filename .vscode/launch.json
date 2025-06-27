@@ -9,6 +9,16 @@
             "projectName": "tqnam",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-Application<demo>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.crm.Application",
+            "projectName": "demo",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
