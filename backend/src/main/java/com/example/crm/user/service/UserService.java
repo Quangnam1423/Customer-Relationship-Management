@@ -3,6 +3,7 @@ package com.example.crm.user.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.crm.user.model.Role;
 import com.example.crm.user.model.User;
 import com.example.crm.user.repository.UserRepository;
 import com.example.crm.user.dto.UpdateUserRequest;
