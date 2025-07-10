@@ -27,7 +27,7 @@ public class Customer {
     @Column(nullable = false)
     private String fullName;
 
-    private String province;
+    private String address;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -60,4 +60,40 @@ public class Customer {
     private String createdBy;  // Creator of the lead
 
     private String leadOwner;  // Employee in charge of the lead
+
+    public Customer(String customerType, 
+        String fullname, 
+        String address, 
+        String source, 
+        String sourceDetail, 
+        String phoneNumber, 
+        String email,
+        String interestedField,
+        String businessField,
+        String leadStatus,
+        String rejectionReason,
+        String note,
+        LocalDateTime consultationTime,
+        LocalDateTime createdAt,
+        String createdBy,
+        String leadOwner
+        
+    ){
+        this.customerType = CustomerType.valueOf(customerType.toUpperCase());
+        this.fullName = fullname;
+        this.address = address;
+        this.source = CustomerSource.valueOf(source.toUpperCase());
+        this.sourceDetail = sourceDetail;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.interestedField = interestedField;
+        this.businessField = businessField;
+        this.leadStatus = CustomerStatus.valueOf(leadStatus.toUpperCase());
+        this.rejectionReason = rejectionReason;
+        this.note = note;
+        this.consultationTime = consultationTime;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
+        this.leadOwner = leadOwner;
+    }
 }
