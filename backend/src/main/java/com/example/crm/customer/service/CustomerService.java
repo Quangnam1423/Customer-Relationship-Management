@@ -15,7 +15,7 @@ public class CustomerService {
     private CustomerRepository customerRepository;
 
     public boolean customerExists(String customerName) {
-        return customerRepository.existsByCustomerName(customerName);
+        return customerRepository.existsByFullName(customerName);
     }
 
     public boolean emailExists(String email) {
@@ -29,6 +29,11 @@ public class CustomerService {
     public Customer saveCustomer(Customer customer)
     {
         return customerRepository.save(customer);
+    }
+
+    public Customer getCustomerById(String id) {
+        return customerRepository.findById(Long.parseLong(id))
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
     }
 
     public Customer getCustomerById(Long id) {
