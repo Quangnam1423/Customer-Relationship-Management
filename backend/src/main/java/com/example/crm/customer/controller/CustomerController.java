@@ -44,7 +44,7 @@ public class CustomerController {
         return customerService.getCustomerById(id);
     }
     
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    //@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PostMapping
     public Customer createCustomer(@RequestBody Customer customer) {
         return customerService.saveCustomer(customer);
