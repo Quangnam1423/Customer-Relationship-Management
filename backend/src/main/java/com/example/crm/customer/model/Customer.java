@@ -4,9 +4,11 @@ import lombok.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.example.crm.user.model.User;
+
 
 @Entity
-@Table(name = "leads", uniqueConstraints = {
+@Table(name = "customers", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"phoneNumber"}),
     @UniqueConstraint(columnNames = {"email"})
 })
@@ -57,9 +59,13 @@ public class Customer {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    private String createdBy;  // Creator of the lead
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lead_owner_id")
+    private User createdBy;  // Creator of the lead
 
-    private String leadOwner;  // Employee in charge of the lead
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_id")
+    private User leadOwner;  // Employee in charge of the lead
 
     public Customer(String customerType, 
         String fullname, 
@@ -75,8 +81,8 @@ public class Customer {
         String note,
         LocalDateTime consultationTime,
         LocalDateTime createdAt,
-        String createdBy,
-        String leadOwner
+        User createdBy,
+        User leadOwner
         
     ){
         this.customerType = CustomerType.valueOf(customerType.toUpperCase());
