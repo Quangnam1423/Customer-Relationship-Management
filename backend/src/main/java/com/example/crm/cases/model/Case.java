@@ -1,52 +1,44 @@
-package com.example.crm.customer.model;
+package com.example.crm.cases.model;
 
-import com.example.crm.account.model.Account;
+import com.example.crm.customer.model.Customer;
 import com.example.crm.user.model.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "cases")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Customer {
+public class Case {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+    @Column(nullable = false)
+    private String title;
 
-    @Column(unique = true)
-    private String email;
-
-    private String phone;
-
-    private String address;
+    @Lob
+    private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "customer_type", nullable = false)
-    private CustomerType customerType;
+    private CaseStatus status;
 
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
-
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private CasePriority priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account; // Liên kết với Account (nếu là khách hàng doanh nghiệp)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_to_user_id")
-    private User assignedTo; // Nhân viên phụ trách
+    private User assignedTo;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
