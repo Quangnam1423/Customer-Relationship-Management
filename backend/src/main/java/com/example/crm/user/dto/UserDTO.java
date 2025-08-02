@@ -1,15 +1,26 @@
 package com.example.crm.user.dto;
 
-import java.util.Set;
+import java.util.List;
 
 public class UserDTO {
     private Long id;
     private String username;
     private String email;
     private String phoneNumber;
-    private Set<String> roles;
+    private int permissionLevel;
+    private boolean enabled;
+    private List<String> roles;
 
-    public UserDTO(Long id, String username, String email, String phoneNumber, Set<String> roles) {
+    public UserDTO(Long id, String username, String email, int permissionLevel, boolean enabled, List<String> roles) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.permissionLevel = permissionLevel;
+        this.enabled = enabled;
+        this.roles = roles;
+    }
+
+    public UserDTO(Long id, String username, String email, String phoneNumber, List<String> roles) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -50,11 +61,27 @@ public class UserDTO {
         this.phoneNumber = phoneNumber;
     }
 
-    public Set<String> getRoles() {
+    public int getPermissionLevel() {
+        return permissionLevel;
+    }
+
+    public void setPermissionLevel(int permissionLevel) {
+        this.permissionLevel = permissionLevel;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public List<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 }

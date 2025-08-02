@@ -49,8 +49,8 @@ public class Opportunity {
     private Set<Product> products = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to_user_id")
-    private User assignedTo;
+    @JoinColumn(name = "assigned_user_id")
+    private User assignedUser;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

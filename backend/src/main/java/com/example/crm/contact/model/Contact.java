@@ -1,6 +1,7 @@
 package com.example.crm.contact.model;
 
 import com.example.crm.account.model.Account;
+import com.example.crm.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -37,6 +38,10 @@ public class Contact {
     @JoinColumn(name = "account_id")
     @JsonBackReference("contact-account")
     private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_user_id")
+    private User assignedUser;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

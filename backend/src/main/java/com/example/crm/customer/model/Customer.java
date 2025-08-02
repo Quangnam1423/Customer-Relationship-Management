@@ -45,8 +45,8 @@ public class Customer {
     private Account account; // Liên kết với Account (nếu là khách hàng doanh nghiệp)
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to_user_id")
-    private User assignedTo; // Nhân viên phụ trách
+    @JoinColumn(name = "assigned_user_id")
+    private User assignedUser; // Nhân viên phụ trách
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -1,0 +1,77 @@
+.admin-dashboard {
+  padding: 0;
+}
+
+.tab-navigation {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e3e6f0;
+  margin-bottom: 2rem;
+}
+
+.tab-navigation .nav-tabs {
+  border-bottom: none;
+  padding: 0 1rem;
+}
+
+.tab-navigation .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: #5a5c69;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.tab-navigation .nav-link:hover {
+  color: #3a3b45;
+  border-color: #dddfeb;
+}
+
+.tab-navigation .nav-link.active {
+  color: #5a67d8;
+  border-color: #5a67d8;
+  background-color: transparent;
+}
+
+.tab-navigation .nav-link i {
+  margin-right: 0.5rem;
+}
+
+.overview-content {
+  padding: 0;
+}
+
+.status-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e3e6f0;
+}
+
+.status-item:last-child {
+  border-bottom: none;
+}
+
+/* Custom card styles */
+.border-left-primary {
+  border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+  border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+  border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+  border-left: 0.25rem solid #f6c23e !important;
+}
+
+.text-gray-800 {
+  color: #5a5c69 !important;
+}
+
+.text-gray-300 {
+  color: #dddfeb !important;
+}

@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.home-container {
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(45deg, rgba(0, 123, 255, 0.8), rgba(0, 198, 255, 0.8)), url('https://www.transparenttextures.com/patterns/cubes.png');
+  color: #fff;
+  padding: 100px 0;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3.5em;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.hero-subtitle {
+  font-size: 1.3em;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+.hero-cta-btn {
+  background-color: #fff;
+  color: #007bff;
+  border: 2px solid #fff;
+  padding: 15px 30px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.hero-cta-btn:hover {
+  background-color: transparent;
+  color: #fff;
+}
+
+/* Features Section */
+.features-section {
+  padding: 80px 0;
+  background: #f8f9fa;
+}
+
+.section-header {
+  margin-bottom: 60px;
+}
+
+.section-header h2 {
+  font-size: 2.5em;
+  font-weight: 600;
+}
+
+.section-header p {
+  font-size: 1.1em;
+  color: #777;
+}
+
+.feature-card {
+  background: #fff;
+  padding: 40px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s;
+  margin-bottom: 30px;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+.feature-icon {
+  font-size: 3em;
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+  padding: 80px 0;
+}
+
+.testimonial-card {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 10px;
+  border-left: 5px solid #007bff;
+  margin-bottom: 30px;
+}
+
+.testimonial-card p {
+  font-style: italic;
+  font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+.testimonial-author {
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Call to Action Section */
+.cta-section {
+  background: #343a40;
+  color: #fff;
+  padding: 80px 0;
+}
+
+.cta-section h2 {
+  font-size: 2.2em;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.cta-section p {
+  font-size: 1.1em;
+  margin-bottom: 30px;
+}
+
+.cta-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: 2px solid #007bff;
+  padding: 15px 30px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.cta-btn:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
