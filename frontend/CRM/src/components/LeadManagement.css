@@ -1,0 +1,157 @@
+.lead-management {
+  padding: 20px;
+}
+
+.table-row-hover:hover {
+  background-color: #f8f9fa !important;
+  transition: background-color 0.2s ease;
+}
+
+.badge {
+  font-size: 0.75em;
+  padding: 0.375rem 0.75rem;
+}
+
+.badge-light {
+  background-color: #f8f9fa !important;
+  color: #6c757d !important;
+}
+
+.card-header button.btn-link {
+  text-decoration: none;
+  color: #495057;
+  font-weight: 500;
+}
+
+.card-header button.btn-link:hover {
+  color: #007bff;
+}
+
+.table th {
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.modal.show {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+  margin: 30px auto;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-outline-primary:hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s ease;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.text-muted.small {
+  font-size: 0.875em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .lead-management {
+    padding: 10px;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .badge {
+    font-size: 0.6em;
+  }
+}
+
+/* Filter section styling */
+.collapse.show {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+/* Modal animations */
+.modal.fade.show {
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Lead status colors */
+.badge-secondary {
+  background-color: #6c757d !important;
+}
+
+.badge-warning {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.badge-info {
+  background-color: #17a2b8 !important;
+}
+
+.badge-danger {
+  background-color: #dc3545 !important;
+}
+
+.badge-dark {
+  background-color: #343a40 !important;
+}
+
+.badge-success {
+  background-color: #28a745 !important;
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

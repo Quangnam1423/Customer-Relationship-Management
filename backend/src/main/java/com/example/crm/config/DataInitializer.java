@@ -74,6 +74,40 @@ public class DataInitializer implements CommandLineRunner{
             System.out.println("Created admin user: admin/admin123");
         }
 
+        if (!userRepository.existsByUsername("marketing")) {
+            User marketingUser = new User();
+            marketingUser.setUsername("marketing");
+            marketingUser.setEmail("marketing@crm.com");
+            marketingUser.setPassword(passwordEncoder.encode("marketing123"));
+            marketingUser.setRole(ERole.ROLE_MARKETING);
+
+            Set<Role> marketingRoles = new HashSet<>();
+            Role marketingRole = roleRepository.findByName(ERole.ROLE_MARKETING)
+                .orElseThrow(() -> new RuntimeException("Marketing role not found"));
+            marketingRoles.add(marketingRole);
+            marketingUser.setRoles(marketingRoles);
+
+            userRepository.save(marketingUser);
+            System.out.println("Created marketing user: marketing/marketing123");
+        }
+
+        if (!userRepository.existsByUsername("telesales")) {
+            User telesalesUser = new User();
+            telesalesUser.setUsername("telesales");
+            telesalesUser.setEmail("telesales@crm.com");
+            telesalesUser.setPassword(passwordEncoder.encode("telesales123"));
+            telesalesUser.setRole(ERole.ROLE_TELESALES);
+
+            Set<Role> telesalesRoles = new HashSet<>();
+            Role telesalesRole = roleRepository.findByName(ERole.ROLE_TELESALES)
+                .orElseThrow(() -> new RuntimeException("Telesales role not found"));
+            telesalesRoles.add(telesalesRole);
+            telesalesUser.setRoles(telesalesRoles);
+
+            userRepository.save(telesalesUser);
+            System.out.println("Created telesales user: telesales/telesales123");
+        }
+
         // Create regular user if not exists
         if (!userRepository.existsByUsername("user")) {
             User user = new User();

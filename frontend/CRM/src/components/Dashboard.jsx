@@ -41,35 +41,28 @@ const Dashboard = () => {
     // Priority: Admin > Marketing > Sales > Telesales > User
     if (level >= 8 || roles.includes("ROLE_ADMIN")) {
       console.log("Rendering Admin Dashboard");
-      return <AdminDashboard currentUser={currentUser} />;
+      return <AdminDashboard />;
     }
     if (level >= 4 || roles.includes("ROLE_MARKETING")) {
       console.log("Rendering Marketing Dashboard");
-      return <MarketingDashboard currentUser={currentUser} />;
+      return <MarketingDashboard />;
     }
     if (level >= 2 || roles.includes("ROLE_SALES")) {
       console.log("Rendering Sales Dashboard");
-      return <SalesDashboard currentUser={currentUser} />;
+      return <SalesDashboard />;
     }
     if (level >= 1 || roles.includes("ROLE_TELESALES")) {
       console.log("Rendering Telesales Dashboard");
-      return <TelesalesDashboard currentUser={currentUser} />;
+      return <TelesalesDashboard />;
     }
     
     // Default for permissionLevel 0 or if level is not defined
     console.log("Rendering User Dashboard");
-    return <UserDashboard currentUser={currentUser} />;
+    return <UserDashboard />;
   };
 
   return (
     <DashboardLayout>
-      {/* Debug info - remove this in production */}
-      <div style={{background: '#f8f9fa', padding: '10px', margin: '10px 0', border: '1px solid #dee2e6', borderRadius: '5px'}}>
-        <strong>Debug Info:</strong>
-        <div>Username: {currentUser?.username}</div>
-        <div>Roles: {JSON.stringify(currentUser?.roles)}</div>
-        <div>Permission Level: {currentUser?.permissionLevel}</div>
-      </div>
       {renderDashboardByRole()}
     </DashboardLayout>
   );
