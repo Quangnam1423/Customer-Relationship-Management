@@ -3,6 +3,8 @@ package com.example.crm.user.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.crm.user.dto.UserDTO;
+import com.example.crm.user.model.ERole;
 import com.example.crm.user.model.Role;
 import com.example.crm.user.model.User;
 import com.example.crm.user.repository.UserRepository;
@@ -11,6 +13,7 @@ import com.example.crm.user.dto.UpdateUserRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -88,5 +91,26 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    // Get all users that can be assigned to leads (excluding admin)
+    public List<UserDTO> getAssignableUsers() {
+        List<User> allUsers = userRepository.findAll();
+        
+        return allUsers.stream()
+                .filter(user -> user.getRoles().stream()
+                        .noneMatch(role -> role.getName() == ERole.ROLE_ADMIN))
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    private UserDTO convertToUserDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        return dto;
     }
 }

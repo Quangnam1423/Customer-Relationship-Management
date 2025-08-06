@@ -49,6 +49,70 @@
   margin-bottom: 8px;
 }
 
+/* Filter Card Animations */
+.filter-card .card-body {
+  animation: fadeIn 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-card .btn-link {
+  color: #495057 !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.filter-card .btn-link:hover {
+  color: #007bff !important;
+}
+
+.filter-card .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  padding: 12px 20px;
+}
+
+/* Filter form improvements */
+.filter-card .form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 6px;
+}
+
+.filter-card .form-control,
+.filter-card .form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.filter-card .form-control:focus,
+.filter-card .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.filter-card .form-check-input:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.filter-card .form-check-label {
+  font-weight: 500;
+  color: #495057;
+}
+
 .lead-header .lead-subtitle {
   opacity: 0.9;
   font-size: 1.1rem;

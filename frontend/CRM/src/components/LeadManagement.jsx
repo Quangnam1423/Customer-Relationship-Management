@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SearchableSelect from './SearchableSelect';
 import './LeadManagement.css';
 
 const LeadManagement = ({ currentUser }) => {
@@ -34,8 +35,13 @@ const LeadManagement = ({ currentUser }) => {
     source: '',
     status: '',
     assignedUserId: '',
-    creatorId: ''
+    creatorId: '',
+    myAssignedLeads: false,
+    myCreatedLeads: false
   });
+
+  // Filter visibility state
+  const [showFilters, setShowFilters] = useState(true);
 
   // Provinces and other options
   const [provinces, setProvinces] = useState([]);
@@ -60,8 +66,9 @@ const LeadManagement = ({ currentUser }) => {
   }, []);
 
   useEffect(() => {
-    applyFilters();
-  }, [leads, filters]);
+    // Chỉ hiển thị tất cả leads mặc định, không tự động filter
+    setFilteredLeads(leads);
+  }, [leads]);
 
   const fetchLeads = async () => {
     try {
@@ -96,9 +103,10 @@ const LeadManagement = ({ currentUser }) => {
   const fetchUsers = async () => {
     try {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
-      const response = await axios.get('http://localhost:8080/api/users', {
+      const response = await axios.get('http://localhost:8080/api/users/assignable', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Users response:', response.data);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -128,31 +136,85 @@ const LeadManagement = ({ currentUser }) => {
     }
   };
 
-  const applyFilters = () => {
-    let filtered = leads;
-
+  // Function to count active filters
+  const getActiveFiltersCount = () => {
+    let count = 0;
     Object.keys(filters).forEach(key => {
       const value = filters[key];
-      if (value) {
+      if (key === 'myAssignedLeads' || key === 'myCreatedLeads') {
+        if (value === true) count++;
+      } else if (value && value !== '') {
+        count++;
+      }
+    });
+    return count;
+  };
+
+  const applyFilters = () => {
+    applyFiltersWithState(filters);
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => {
+      const newFilters = { ...prev, [key]: value };
+      
+      // Tự động áp dụng filter ngay khi thay đổi
+      setTimeout(() => {
+        applyFiltersWithState(newFilters);
+      }, 0);
+      
+      return newFilters;
+    });
+  };
+
+  const applyFiltersWithState = (filtersToApply) => {
+    let filtered = leads;
+
+    // Apply basic text/select filters
+    Object.keys(filtersToApply).forEach(filterKey => {
+      const filterValue = filtersToApply[filterKey];
+      if (filterKey === 'myAssignedLeads' || filterKey === 'myCreatedLeads') {
+        return; // Skip these special filters
+      }
+      
+      if (filterValue && filterValue !== '') {
         filtered = filtered.filter(lead => {
-          const leadValue = lead[key];
-          if (typeof leadValue === 'string') {
-            return leadValue.toLowerCase().includes(value.toLowerCase());
+          // Special handling for assignedUserId
+          if (filterKey === 'assignedUserId') {
+            if (filterValue === 'null') {
+              return !lead.assignedUserId;
+            }
+            return lead.assignedUserId && lead.assignedUserId.toString() === filterValue.toString();
           }
-          return leadValue === value;
+          
+          const leadValue = lead[filterKey];
+          if (typeof leadValue === 'string') {
+            return leadValue.toLowerCase().includes(filterValue.toLowerCase());
+          }
+          return leadValue === filterValue;
         });
       }
     });
 
+    // Apply "My Assigned Leads" filter
+    if (filtersToApply.myAssignedLeads && currentUser) {
+      filtered = filtered.filter(lead => 
+        lead.assignedUserId && lead.assignedUserId.toString() === currentUser.id.toString()
+      );
+    }
+
+    // Apply "My Created Leads" filter
+    if (filtersToApply.myCreatedLeads && currentUser) {
+      filtered = filtered.filter(lead => 
+        lead.creatorId && lead.creatorId.toString() === currentUser.id.toString()
+      );
+    }
+
     setFilteredLeads(filtered);
   };
 
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
   const clearFilters = () => {
-    setFilters({
+    const clearedFilters = {
       fullName: '',
       phone: '',
       email: '',
@@ -161,8 +223,14 @@ const LeadManagement = ({ currentUser }) => {
       source: '',
       status: '',
       assignedUserId: '',
-      creatorId: ''
-    });
+      creatorId: '',
+      myAssignedLeads: false,
+      myCreatedLeads: false
+    };
+    
+    setFilters(clearedFilters);
+    // Reset to show all leads
+    setFilteredLeads(leads);
   };
 
   const handleSubmitLead = async (e) => {
@@ -176,12 +244,16 @@ const LeadManagement = ({ currentUser }) => {
         }
       };
 
+      console.log('Submitting form data:', formData);
+
       if (editingLead) {
         // Update existing lead
-        await axios.put(`http://localhost:8080/api/leads/${editingLead.id}`, formData, config);
+        const response = await axios.put(`http://localhost:8080/api/leads/${editingLead.id}`, formData, config);
+        console.log('Update response:', response.data);
       } else {
         // Create new lead
-        await axios.post('http://localhost:8080/api/leads', formData, config);
+        const response = await axios.post('http://localhost:8080/api/leads', formData, config);
+        console.log('Create response:', response.data);
       }
 
       // Reset form and close modal
@@ -216,7 +288,7 @@ const LeadManagement = ({ currentUser }) => {
       province: lead.province || '',
       source: lead.source || '',
       status: lead.status || 'CHUA_GOI',
-      assignedUserId: lead.assignedUser?.id || null,
+      assignedUserId: lead.assignedUserId || null,
       notes: lead.notes || ''
     });
     setEditingLead(lead);
@@ -280,43 +352,26 @@ const LeadManagement = ({ currentUser }) => {
             </small>
           </p>
         </div>
-        <button 
-          className="btn btn-primary btn-add-lead"
-          onClick={() => {
-            setFormData({
-              fullName: '',
-              phone: '',
-              email: '',
-              company: '',
-              province: '',
-              source: '',
-              status: 'CHUA_GOI',
-              assignedUserId: null,
-              notes: ''
-            });
-            setEditingLead(null);
-            setShowAddModal(true);
-          }}
-        >
-          <i className="fas fa-plus me-2"></i>
-          Thêm Lead
-        </button>
       </div>
 
       {/* Filter Section */}
       <div className="card filter-card mb-4">
         <div className="card-header">
           <button 
-            className="btn btn-link p-0 text-decoration-none"
+            className="btn btn-link p-0 text-decoration-none d-flex align-items-center"
             type="button" 
-            data-bs-toggle="collapse" 
-            data-bs-target="#filterCollapse"
+            onClick={() => setShowFilters(!showFilters)}
           >
-            <i className="fas fa-filter me-2"></i>
+            <i className={`fas ${showFilters ? 'fa-chevron-up' : 'fa-chevron-down'} me-2`}></i>
             Bộ lọc
+            {getActiveFiltersCount() > 0 && (
+              <span className="badge bg-primary ms-2">
+                {getActiveFiltersCount()}
+              </span>
+            )}
           </button>
         </div>
-        <div className="collapse" id="filterCollapse">
+        {showFilters && (
           <div className="card-body">
             <div className="row">
               <div className="col-md-3 mb-3">
@@ -340,6 +395,29 @@ const LeadManagement = ({ currentUser }) => {
                 />
               </div>
               <div className="col-md-3 mb-3">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  value={filters.email}
+                  onChange={(e) => handleFilterChange('email', e.target.value)}
+                  placeholder="Nhập email..."
+                />
+              </div>
+              <div className="col-md-3 mb-3">
+                <label className="form-label">Công ty</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={filters.company}
+                  onChange={(e) => handleFilterChange('company', e.target.value)}
+                  placeholder="Nhập tên công ty..."
+                />
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col-md-3 mb-3">
                 <label className="form-label">Tỉnh/Thành phố</label>
                 <select
                   className="form-select"
@@ -350,6 +428,21 @@ const LeadManagement = ({ currentUser }) => {
                   {provinces.map(province => (
                     <option key={province.name} value={province.name}>
                       {province.displayName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-3 mb-3">
+                <label className="form-label">Nguồn lead</label>
+                <select
+                  className="form-select"
+                  value={filters.source}
+                  onChange={(e) => handleFilterChange('source', e.target.value)}
+                >
+                  <option value="">Tất cả</option>
+                  {sourceOptions.map(source => (
+                    <option key={source.value} value={source.value}>
+                      {source.label}
                     </option>
                   ))}
                 </select>
@@ -369,18 +462,99 @@ const LeadManagement = ({ currentUser }) => {
                   ))}
                 </select>
               </div>
+              <div className="col-md-3 mb-3">
+                <label className="form-label">Người phụ trách</label>
+                <select
+                  className="form-select"
+                  value={filters.assignedUserId}
+                  onChange={(e) => handleFilterChange('assignedUserId', e.target.value)}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="null">Chưa gán</option>
+                  {users.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.fullName || user.username} ({user.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="d-flex justify-content-end">
-              <button className="btn btn-outline-secondary" onClick={clearFilters}>
-                Xóa bộ lọc
-              </button>
+
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Lead được gán cho tôi</label>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="myAssignedLeads"
+                    checked={filters.myAssignedLeads}
+                    onChange={(e) => handleFilterChange('myAssignedLeads', e.target.checked)}
+                  />
+                  <label className="form-check-label" htmlFor="myAssignedLeads">
+                    Chỉ hiển thị lead được gán cho tôi
+                  </label>
+                </div>
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Lead do tôi tạo</label>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="myCreatedLeads"
+                    checked={filters.myCreatedLeads}
+                    onChange={(e) => handleFilterChange('myCreatedLeads', e.target.checked)}
+                  />
+                  <label className="form-check-label" htmlFor="myCreatedLeads">
+                    Chỉ hiển thị lead do tôi tạo
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <small className="text-muted">
+                  <i className="fas fa-info-circle me-1"></i>
+                  Bộ lọc sẽ tự động áp dụng khi thay đổi
+                </small>
+              </div>
+              <div>
+                {getActiveFiltersCount() > 0 && (
+                  <small className="text-success me-3">
+                    <i className="fas fa-check me-1"></i>
+                    {getActiveFiltersCount()} bộ lọc đang hoạt động
+                  </small>
+                )}
+                <button 
+                  className="btn btn-outline-secondary"
+                  onClick={clearFilters}
+                  disabled={getActiveFiltersCount() === 0}
+                >
+                  <i className="fas fa-times me-2"></i>
+                  Xóa bộ lọc
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Lead Table */}
       <div className="card table-card">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h6 className="mb-0">Danh sách Leads</h6>
+            <small className="text-muted">
+              Hiển thị {filteredLeads.length} / {leads.length} leads
+            </small>
+          </div>
+          <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+            <i className="fas fa-plus me-2"></i>
+            Thêm Lead
+          </button>
+        </div>
         <div className="card-body p-0">
           <div className="table-responsive">
             <table className="table table-hover">
@@ -424,7 +598,7 @@ const LeadManagement = ({ currentUser }) => {
                           {getStatusLabel(lead.status)}
                         </span>
                       </td>
-                      <td>{lead.assignedUser?.fullName || lead.assignedUser?.username || '-'}</td>
+                      <td>{lead.assignedUsername || '-'}</td>
                       <td>{formatDate(lead.createdAt)}</td>
                     </tr>
                   ))
@@ -465,7 +639,7 @@ const LeadManagement = ({ currentUser }) => {
                         {getStatusLabel(selectedLead.status)}
                       </span>
                     </p>
-                    <p><strong>Người phụ trách:</strong> {selectedLead.assignedUser?.fullName || selectedLead.assignedUser?.username || 'Chưa gán'}</p>
+                    <p><strong>Người phụ trách:</strong> {selectedLead.assignedUsername || 'Chưa gán'}</p>
                   </div>
                 </div>
                 <div className="row">
@@ -625,8 +799,26 @@ const LeadManagement = ({ currentUser }) => {
                     </div>
                   </div>
 
-                  {editingLead && (
-                    <div className="row">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label htmlFor="assignedUserId" className="form-label">Người phụ trách</label>
+                        <select
+                          className="form-select"
+                          id="assignedUserId"
+                          value={formData.assignedUserId || ''}
+                          onChange={(e) => setFormData({ ...formData, assignedUserId: e.target.value || null })}
+                        >
+                          <option value="">Chưa gán</option>
+                          {users.map(user => (
+                            <option key={user.id} value={user.id}>
+                              {user.fullName || user.username} ({user.email})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    {editingLead && (
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label htmlFor="status" className="form-label">Trạng thái</label>
@@ -644,26 +836,8 @@ const LeadManagement = ({ currentUser }) => {
                           </select>
                         </div>
                       </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label htmlFor="assignedUserId" className="form-label">Người phụ trách</label>
-                          <select
-                            className="form-select"
-                            id="assignedUserId"
-                            value={formData.assignedUserId || ''}
-                            onChange={(e) => setFormData({ ...formData, assignedUserId: e.target.value || null })}
-                          >
-                            <option value="">Chưa gán</option>
-                            {users.map(user => (
-                              <option key={user.id} value={user.id}>
-                                {user.fullName || user.username}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   <div className="mb-3">
                     <label htmlFor="notes" className="form-label">Ghi chú</label>

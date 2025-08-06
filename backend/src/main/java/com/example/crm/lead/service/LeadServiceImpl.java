@@ -88,10 +88,15 @@ public class LeadServiceImpl implements LeadService {
         if (request.getNotes() != null) {
             lead.setNotes(request.getNotes());
         }
+        
+        // Handle assigned user (including null to unassign)
         if (request.getAssignedUserId() != null) {
             User assignedUser = userRepository.findById(request.getAssignedUserId())
                     .orElseThrow(() -> new RuntimeException("Assigned user not found"));
             lead.setAssignedUser(assignedUser);
+        } else {
+            // If assignedUserId is explicitly set to null, unassign the user
+            lead.setAssignedUser(null);
         }
 
         lead = leadRepository.save(lead);

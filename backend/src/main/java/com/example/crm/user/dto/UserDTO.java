@@ -7,9 +7,13 @@ public class UserDTO {
     private String username;
     private String email;
     private String phoneNumber;
+    private String fullName;
     private int permissionLevel;
     private boolean enabled;
     private List<String> roles;
+
+    // Default constructor
+    public UserDTO() {}
 
     public UserDTO(Long id, String username, String email, int permissionLevel, boolean enabled, List<String> roles) {
         this.id = id;
@@ -59,6 +63,14 @@ public class UserDTO {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public int getPermissionLevel() {
