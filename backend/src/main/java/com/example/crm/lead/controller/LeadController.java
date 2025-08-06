@@ -14,8 +14,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/leads")
@@ -200,5 +202,17 @@ public class LeadController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         List<LeadResponse> leads = leadService.getLeadsUpdatedBetween(startDate, endDate);
         return ResponseEntity.ok(leads);
+    }
+
+    // Get all lead statuses with display names
+    @GetMapping("/statuses")
+    public ResponseEntity<List<Map<String, String>>> getAllLeadStatuses() {
+        List<Map<String, String>> statuses = Arrays.stream(LeadStatus.values())
+                .map(status -> Map.of(
+                        "value", status.name(),
+                        "label", status.getDisplayName()
+                ))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(statuses);
     }
 }

@@ -325,16 +325,22 @@ public class LeadServiceImpl implements LeadService {
         response.setId(lead.getId());
         response.setFullName(lead.getFullName());
         response.setProvince(lead.getProvince());
-        // Set area display name
+        // Set province display name
         if (lead.getProvince() != null) {
-            response.setAreaDisplayName(lead.getProvince().getDisplayName());
+            response.setProvinceDisplayName(lead.getProvince().getDisplayName());
+            response.setAreaDisplayName(lead.getProvince().getDisplayName()); // For backward compatibility
         }
         response.setPhone(lead.getPhone());
         response.setEmail(lead.getEmail());
         response.setCompany(lead.getCompany());
         response.setSource(lead.getSource());
+        if (lead.getSource() != null) {
+            response.setSourceDisplayName(lead.getSource().getDisplayName());
+        }
         response.setStatus(lead.getStatus());
-        response.setStatusDisplayName(lead.getStatus().getDisplayName());
+        if (lead.getStatus() != null) {
+            response.setStatusDisplayName(lead.getStatus().getDisplayName());
+        }
         response.setNotes(lead.getNotes());
         response.setCreatedAt(lead.getCreatedAt());
         response.setUpdatedAt(lead.getUpdatedAt());

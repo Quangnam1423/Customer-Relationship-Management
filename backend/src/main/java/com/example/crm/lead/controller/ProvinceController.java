@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -21,8 +23,14 @@ public class ProvinceController {
      * Lấy tất cả các tỉnh thành
      */
     @GetMapping
-    public ResponseEntity<List<VietnamProvince>> getAllProvinces() {
-        List<VietnamProvince> provinces = provinceService.getAllProvinces();
+    public ResponseEntity<List<Map<String, String>>> getAllProvinces() {
+        List<Map<String, String>> provinces = Arrays.stream(VietnamProvince.values())
+                .map(province -> Map.of(
+                        "name", province.name(),
+                        "displayName", province.getDisplayName(),
+                        "region", province.getRegion()
+                ))
+                .collect(Collectors.toList());
         return ResponseEntity.ok(provinces);
     }
 

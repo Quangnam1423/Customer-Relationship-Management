@@ -5,7 +5,7 @@ import MarketingDashboard from "./dashboards/MarketingDashboard";
 import SalesDashboard from "./dashboards/SalesDashboard";
 import TelesalesDashboard from "./dashboards/TelesalesDashboard";
 import UserDashboard from "./dashboards/UserDashboard";
-import DashboardLayout from "./layout/DashboardLayout";
+
 
 const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState(undefined);
@@ -62,9 +62,9 @@ const Dashboard = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       {renderDashboardByRole()}
-    </DashboardLayout>
+    </>
   );
 };
 

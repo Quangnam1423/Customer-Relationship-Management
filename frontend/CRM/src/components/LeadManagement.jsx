@@ -19,7 +19,7 @@ const LeadManagement = ({ currentUser }) => {
     company: '',
     province: '',
     source: '',
-    status: 'NEW',
+    status: 'CHUA_GOI',
     assignedUserId: null,
     notes: ''
   });
@@ -39,17 +39,8 @@ const LeadManagement = ({ currentUser }) => {
 
   // Provinces and other options
   const [provinces, setProvinces] = useState([]);
+  const [leadStatuses, setLeadStatuses] = useState([]);
   
-  const leadStatuses = [
-    { value: 'NEW', label: 'Mới' },
-    { value: 'CONTACTED', label: 'Đã liên hệ' },
-    { value: 'QUALIFIED', label: 'Đủ điều kiện' },
-    { value: 'PROPOSAL', label: 'Đề xuất' },
-    { value: 'NEGOTIATION', label: 'Đàm phán' },
-    { value: 'CLOSED_WON', label: 'Thành công' },
-    { value: 'CLOSED_LOST', label: 'Thất bại' }
-  ];
-
   const sourceOptions = [
     { value: 'WEBSITE', label: 'Website' },
     { value: 'FACEBOOK', label: 'Facebook' },
@@ -65,6 +56,7 @@ const LeadManagement = ({ currentUser }) => {
     fetchLeads();
     fetchProvinces();
     fetchUsers();
+    fetchLeadStatuses();
   }, []);
 
   useEffect(() => {
@@ -93,9 +85,11 @@ const LeadManagement = ({ currentUser }) => {
       const response = await axios.get('http://localhost:8080/api/provinces', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Provinces response:', response.data);
       setProvinces(response.data);
     } catch (error) {
       console.error('Error fetching provinces:', error);
+      console.error('Error details:', error.response);
     }
   };
 
@@ -108,6 +102,29 @@ const LeadManagement = ({ currentUser }) => {
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
+    }
+  };
+
+  const fetchLeadStatuses = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem('user'))?.token;
+      const response = await axios.get('http://localhost:8080/api/leads/statuses', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log('Lead statuses response:', response.data);
+      setLeadStatuses(response.data);
+    } catch (error) {
+      console.error('Error fetching lead statuses:', error);
+      // Fallback to default statuses if API fails
+      setLeadStatuses([
+        { value: 'CHUA_GOI', label: 'Chưa gọi' },
+        { value: 'CHUA_LIEN_HE_DUOC', label: 'Chưa liên hệ được' },
+        { value: 'WARM_LEAD', label: 'Warm lead' },
+        { value: 'COLD_LEAD', label: 'Cold lead' },
+        { value: 'TU_CHOI', label: 'Từ chối' },
+        { value: 'HUY', label: 'Hủy' },
+        { value: 'KY_HOP_DONG', label: 'Ký hợp đồng' }
+      ]);
     }
   };
 
@@ -198,7 +215,7 @@ const LeadManagement = ({ currentUser }) => {
       company: lead.company || '',
       province: lead.province || '',
       source: lead.source || '',
-      status: lead.status || 'NEW',
+      status: lead.status || 'CHUA_GOI',
       assignedUserId: lead.assignedUser?.id || null,
       notes: lead.notes || ''
     });
@@ -229,6 +246,11 @@ const LeadManagement = ({ currentUser }) => {
     return sourceItem ? sourceItem.label : source;
   };
 
+  const getProvinceLabel = (provinceName) => {
+    const province = provinces.find(p => p.name === provinceName);
+    return province ? province.displayName : provinceName;
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('vi-VN');
@@ -246,10 +268,20 @@ const LeadManagement = ({ currentUser }) => {
 
   return (
     <div className="lead-management">
+      {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Quản lý Lead</h2>
+        <div>
+          <h2>Quản lý Lead</h2>
+          <p className="text-muted mb-0">
+            Quản lý danh sách khách hàng tiềm năng của bạn
+            <small className="d-block mt-1">
+              <i className="fas fa-info-circle me-1"></i>
+              Nhấn vào dòng để xem chi tiết lead
+            </small>
+          </p>
+        </div>
         <button 
-          className="btn btn-primary"
+          className="btn btn-primary btn-add-lead"
           onClick={() => {
             setFormData({
               fullName: '',
@@ -258,7 +290,7 @@ const LeadManagement = ({ currentUser }) => {
               company: '',
               province: '',
               source: '',
-              status: 'NEW',
+              status: 'CHUA_GOI',
               assignedUserId: null,
               notes: ''
             });
@@ -272,7 +304,7 @@ const LeadManagement = ({ currentUser }) => {
       </div>
 
       {/* Filter Section */}
-      <div className="card mb-4">
+      <div className="card filter-card mb-4">
         <div className="card-header">
           <button 
             className="btn btn-link p-0 text-decoration-none"
@@ -348,8 +380,8 @@ const LeadManagement = ({ currentUser }) => {
       </div>
 
       {/* Lead Table */}
-      <div className="card">
-        <div className="card-body">
+      <div className="card table-card">
+        <div className="card-body p-0">
           <div className="table-responsive">
             <table className="table table-hover">
               <thead>
@@ -363,24 +395,29 @@ const LeadManagement = ({ currentUser }) => {
                   <th>Trạng thái</th>
                   <th>Người phụ trách</th>
                   <th>Ngày tạo</th>
-                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLeads.length === 0 ? (
                   <tr>
-                    <td colSpan="10" className="text-center text-muted">
+                    <td colSpan="9" className="text-center text-muted">
                       Không có lead nào phù hợp với bộ lọc
                     </td>
                   </tr>
                 ) : (
                   filteredLeads.map((lead) => (
-                    <tr key={lead.id} className="table-row-hover">
+                    <tr 
+                      key={lead.id} 
+                      className="table-row-hover clickable-row"
+                      onClick={() => setSelectedLead(lead)}
+                      style={{ cursor: 'pointer' }}
+                      title="Nhấn để xem chi tiết"
+                    >
                       <td>{lead.fullName}</td>
                       <td>{lead.phone}</td>
                       <td>{lead.email || '-'}</td>
                       <td>{lead.company || '-'}</td>
-                      <td>{lead.province}</td>
+                      <td>{getProvinceLabel(lead.province)}</td>
                       <td>{getSourceLabel(lead.source)}</td>
                       <td>
                         <span className={getStatusBadgeClass(lead.status)}>
@@ -389,22 +426,6 @@ const LeadManagement = ({ currentUser }) => {
                       </td>
                       <td>{lead.assignedUser?.fullName || lead.assignedUser?.username || '-'}</td>
                       <td>{formatDate(lead.createdAt)}</td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline-primary me-1"
-                          onClick={() => setSelectedLead(lead)}
-                          title="Xem chi tiết"
-                        >
-                          <i className="fas fa-eye"></i>
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => handleEditLead(lead)}
-                          title="Sửa"
-                        >
-                          <i className="fas fa-edit"></i>
-                        </button>
-                      </td>
                     </tr>
                   ))
                 )}
@@ -436,7 +457,7 @@ const LeadManagement = ({ currentUser }) => {
                     <p><strong>Công ty:</strong> {selectedLead.company || 'Chưa có'}</p>
                   </div>
                   <div className="col-md-6">
-                    <p><strong>Tỉnh/Thành phố:</strong> {selectedLead.province}</p>
+                    <p><strong>Tỉnh/Thành phố:</strong> {getProvinceLabel(selectedLead.province)}</p>
                     <p><strong>Nguồn:</strong> {getSourceLabel(selectedLead.source)}</p>
                     <p>
                       <strong>Trạng thái:</strong> 
@@ -670,7 +691,7 @@ const LeadManagement = ({ currentUser }) => {
                           company: '',
                           province: '',
                           source: '',
-                          status: 'NEW',
+                          status: 'CHUA_GOI',
                           assignedUserId: null,
                           notes: ''
                         });
