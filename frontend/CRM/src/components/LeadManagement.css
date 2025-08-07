@@ -113,6 +113,160 @@
   color: #495057;
 }
 
+/* Filter Modal Styles */
+.filter-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.filter-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 1200px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: between;
+  align-items: center;
+}
+
+.filter-modal-header h5 {
+  margin: 0;
+  font-weight: 600;
+  color: white;
+  flex: 1;
+}
+
+.filter-modal-header .btn-close {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  padding: 8px;
+}
+
+.filter-modal-header .btn-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  opacity: 1;
+}
+
+.filter-modal-body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.filter-modal-body .form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.filter-modal-body .form-control,
+.filter-modal-body .form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.filter-modal-body .form-control:focus,
+.filter-modal-body .form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.filter-modal-body .form-check {
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.filter-modal-body .form-check:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+}
+
+.filter-modal-body .form-check-input {
+  margin-right: 8px;
+}
+
+.filter-modal-body .form-check-input:checked {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.filter-modal-body .form-check-label {
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+}
+
+.filter-modal-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 16px 24px;
+}
+
+.filter-modal-footer .btn {
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-modal {
+    max-width: 95%;
+    margin: 10px;
+  }
+  
+  .filter-modal-body .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .filter-modal-body .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
 .lead-header .lead-subtitle {
   opacity: 0.9;
   font-size: 1.1rem;
@@ -255,6 +409,82 @@
   font-weight: 600 !important;
   color: #495057 !important;
   padding: 16px !important;
+  border-right: 1px solid #dee2e6 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.table thead th:last-child {
+  border-right: none !important;
+}
+
+.table tbody td {
+  border-right: 1px solid #dee2e6 !important;
+  padding: 12px 16px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 0 !important;
+}
+
+.table tbody td:last-child {
+  border-right: none !important;
+}
+
+/* Column widths for Lead Management table */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  width: 200px !important;
+  max-width: 200px !important;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+  width: 120px !important;
+  max-width: 120px !important;
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  width: 220px !important;
+  max-width: 220px !important;
+}
+
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  width: 160px !important;
+  max-width: 160px !important;
+}
+
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 120px !important;
+  max-width: 120px !important;
+}
+
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  width: 100px !important;
+  max-width: 100px !important;
+}
+
+.table th:nth-child(7),
+.table td:nth-child(7) {
+  width: 120px !important;
+  max-width: 120px !important;
+}
+
+.table th:nth-child(8),
+.table td:nth-child(8) {
+  width: 140px !important;
+  max-width: 140px !important;
+}
+
+.table th:nth-child(9),
+.table td:nth-child(9) {
+  width: 120px !important;
+  max-width: 120px !important;
 }
 
 .table tbody tr {

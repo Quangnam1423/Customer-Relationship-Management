@@ -352,212 +352,230 @@ const LeadManagement = ({ currentUser }) => {
             </small>
           </p>
         </div>
-      </div>
-
-      {/* Filter Section */}
-      <div className="card filter-card mb-4">
-        <div className="card-header">
+        
+        {/* Action Buttons */}
+        <div className="d-flex gap-3">
           <button 
-            className="btn btn-link p-0 text-decoration-none d-flex align-items-center"
-            type="button" 
+            className="btn btn-outline-primary"
             onClick={() => setShowFilters(!showFilters)}
           >
-            <i className={`fas ${showFilters ? 'fa-chevron-up' : 'fa-chevron-down'} me-2`}></i>
+            <i className={`fas ${showFilters ? 'fa-chevron-up' : 'fa-filter'} me-2`}></i>
             Bộ lọc
             {getActiveFiltersCount() > 0 && (
-              <span className="badge bg-primary ms-2">
+              <span className="badge bg-danger ms-2">
                 {getActiveFiltersCount()}
               </span>
             )}
           </button>
-        </div>
-        {showFilters && (
-          <div className="card-body">
-            <div className="row">
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Tên khách hàng</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={filters.fullName}
-                  onChange={(e) => handleFilterChange('fullName', e.target.value)}
-                  placeholder="Nhập tên..."
-                />
-              </div>
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Số điện thoại</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={filters.phone}
-                  onChange={(e) => handleFilterChange('phone', e.target.value)}
-                  placeholder="Nhập số điện thoại..."
-                />
-              </div>
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Email</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  value={filters.email}
-                  onChange={(e) => handleFilterChange('email', e.target.value)}
-                  placeholder="Nhập email..."
-                />
-              </div>
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Công ty</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={filters.company}
-                  onChange={(e) => handleFilterChange('company', e.target.value)}
-                  placeholder="Nhập tên công ty..."
-                />
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Tỉnh/Thành phố</label>
-                <select
-                  className="form-select"
-                  value={filters.province}
-                  onChange={(e) => handleFilterChange('province', e.target.value)}
-                >
-                  <option value="">Tất cả</option>
-                  {provinces.map(province => (
-                    <option key={province.name} value={province.name}>
-                      {province.displayName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Nguồn lead</label>
-                <select
-                  className="form-select"
-                  value={filters.source}
-                  onChange={(e) => handleFilterChange('source', e.target.value)}
-                >
-                  <option value="">Tất cả</option>
-                  {sourceOptions.map(source => (
-                    <option key={source.value} value={source.value}>
-                      {source.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Trạng thái</label>
-                <select
-                  className="form-select"
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                >
-                  <option value="">Tất cả</option>
-                  {leadStatuses.map(status => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-3 mb-3">
-                <label className="form-label">Người phụ trách</label>
-                <select
-                  className="form-select"
-                  value={filters.assignedUserId}
-                  onChange={(e) => handleFilterChange('assignedUserId', e.target.value)}
-                >
-                  <option value="">Tất cả</option>
-                  <option value="null">Chưa gán</option>
-                  {users.map(user => (
-                    <option key={user.id} value={user.id}>
-                      {user.fullName || user.username} ({user.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Lead được gán cho tôi</label>
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="myAssignedLeads"
-                    checked={filters.myAssignedLeads}
-                    onChange={(e) => handleFilterChange('myAssignedLeads', e.target.checked)}
-                  />
-                  <label className="form-check-label" htmlFor="myAssignedLeads">
-                    Chỉ hiển thị lead được gán cho tôi
-                  </label>
-                </div>
-              </div>
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Lead do tôi tạo</label>
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="myCreatedLeads"
-                    checked={filters.myCreatedLeads}
-                    onChange={(e) => handleFilterChange('myCreatedLeads', e.target.checked)}
-                  />
-                  <label className="form-check-label" htmlFor="myCreatedLeads">
-                    Chỉ hiển thị lead do tôi tạo
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <small className="text-muted">
-                  <i className="fas fa-info-circle me-1"></i>
-                  Bộ lọc sẽ tự động áp dụng khi thay đổi
-                </small>
-              </div>
-              <div>
-                {getActiveFiltersCount() > 0 && (
-                  <small className="text-success me-3">
-                    <i className="fas fa-check me-1"></i>
-                    {getActiveFiltersCount()} bộ lọc đang hoạt động
-                  </small>
-                )}
-                <button 
-                  className="btn btn-outline-secondary"
-                  onClick={clearFilters}
-                  disabled={getActiveFiltersCount() === 0}
-                >
-                  <i className="fas fa-times me-2"></i>
-                  Xóa bộ lọc
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Lead Table */}
-      <div className="card table-card">
-        <div className="card-header d-flex justify-content-between align-items-center">
-          <div>
-            <h6 className="mb-0">Danh sách Leads</h6>
-            <small className="text-muted">
-              Hiển thị {filteredLeads.length} / {leads.length} leads
-            </small>
-          </div>
-          <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+          
+          <button 
+            className="btn btn-primary" 
+            onClick={() => setShowAddModal(true)}
+          >
             <i className="fas fa-plus me-2"></i>
             Thêm Lead
           </button>
         </div>
+      </div>
+
+      {/* Filter Modal */}
+      {showFilters && (
+        <div className="filter-modal-overlay" onClick={() => setShowFilters(false)}>
+          <div className="filter-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="filter-modal-header">
+              <h5 className="mb-0">
+                <i className="fas fa-filter me-2"></i>
+                Bộ lọc Lead
+              </h5>
+              <button 
+                className="btn-close" 
+                onClick={() => setShowFilters(false)}
+              ></button>
+            </div>
+            <div className="filter-modal-body">
+              <div className="row">
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Tên khách hàng</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={filters.fullName}
+                    onChange={(e) => handleFilterChange('fullName', e.target.value)}
+                    placeholder="Nhập tên..."
+                  />
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Số điện thoại</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={filters.phone}
+                    onChange={(e) => handleFilterChange('phone', e.target.value)}
+                    placeholder="Nhập số điện thoại..."
+                  />
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={filters.email}
+                    onChange={(e) => handleFilterChange('email', e.target.value)}
+                    placeholder="Nhập email..."
+                  />
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Công ty</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={filters.company}
+                    onChange={(e) => handleFilterChange('company', e.target.value)}
+                    placeholder="Nhập tên công ty..."
+                  />
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Tỉnh/Thành phố</label>
+                  <select
+                    className="form-select"
+                    value={filters.province}
+                    onChange={(e) => handleFilterChange('province', e.target.value)}
+                  >
+                    <option value="">Tất cả</option>
+                    {provinces.map(province => (
+                      <option key={province.name} value={province.name}>
+                        {province.displayName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Nguồn lead</label>
+                  <select
+                    className="form-select"
+                    value={filters.source}
+                    onChange={(e) => handleFilterChange('source', e.target.value)}
+                  >
+                    <option value="">Tất cả</option>
+                    {sourceOptions.map(source => (
+                      <option key={source.value} value={source.value}>
+                        {source.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Trạng thái</label>
+                  <select
+                    className="form-select"
+                    value={filters.status}
+                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                  >
+                    <option value="">Tất cả</option>
+                    {leadStatuses.map(status => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Người phụ trách</label>
+                  <select
+                    className="form-select"
+                    value={filters.assignedUserId}
+                    onChange={(e) => handleFilterChange('assignedUserId', e.target.value)}
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="null">Chưa gán</option>
+                    {users.map(user => (
+                      <option key={user.id} value={user.id}>
+                        {user.fullName || user.username} ({user.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="myAssignedLeads"
+                      checked={filters.myAssignedLeads}
+                      onChange={(e) => handleFilterChange('myAssignedLeads', e.target.checked)}
+                    />
+                    <label className="form-check-label" htmlFor="myAssignedLeads">
+                      <i className="fas fa-user-check me-2"></i>
+                      Chỉ hiển thị lead được gán cho tôi
+                    </label>
+                  </div>
+                </div>
+                <div className="col-md-6 mb-3">
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="myCreatedLeads"
+                      checked={filters.myCreatedLeads}
+                      onChange={(e) => handleFilterChange('myCreatedLeads', e.target.checked)}
+                    />
+                    <label className="form-check-label" htmlFor="myCreatedLeads">
+                      <i className="fas fa-user-plus me-2"></i>
+                      Chỉ hiển thị lead do tôi tạo
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="filter-modal-footer">
+              <div className="d-flex justify-content-between align-items-center w-100">
+                <div>
+                  <small className="text-muted">
+                    <i className="fas fa-info-circle me-1"></i>
+                    Bộ lọc sẽ tự động áp dụng khi thay đổi
+                  </small>
+                </div>
+                <div>
+                  {getActiveFiltersCount() > 0 && (
+                    <small className="text-success me-3">
+                      <i className="fas fa-check me-1"></i>
+                      {getActiveFiltersCount()} bộ lọc đang hoạt động
+                    </small>
+                  )}
+                  <button 
+                    className="btn btn-outline-secondary me-2"
+                    onClick={clearFilters}
+                    disabled={getActiveFiltersCount() === 0}
+                  >
+                    <i className="fas fa-times me-2"></i>
+                    Xóa bộ lọc
+                  </button>
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => setShowFilters(false)}
+                  >
+                    <i className="fas fa-check me-2"></i>
+                    Đóng
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lead Table */}
+      <div className="card table-card">
         <div className="card-body p-0">
           <div className="table-responsive">
-            <table className="table table-hover">
+            <table className="table table-hover table-bordered">
               <thead>
                 <tr>
                   <th>Tên khách hàng</th>
@@ -587,19 +605,19 @@ const LeadManagement = ({ currentUser }) => {
                       style={{ cursor: 'pointer' }}
                       title="Nhấn để xem chi tiết"
                     >
-                      <td>{lead.fullName}</td>
-                      <td>{lead.phone}</td>
-                      <td>{lead.email || '-'}</td>
-                      <td>{lead.company || '-'}</td>
-                      <td>{getProvinceLabel(lead.province)}</td>
-                      <td>{getSourceLabel(lead.source)}</td>
-                      <td>
+                      <td title={lead.fullName}>{lead.fullName}</td>
+                      <td title={lead.phone}>{lead.phone}</td>
+                      <td title={lead.email || '-'}>{lead.email || '-'}</td>
+                      <td title={lead.company || '-'}>{lead.company || '-'}</td>
+                      <td title={getProvinceLabel(lead.province)}>{getProvinceLabel(lead.province)}</td>
+                      <td title={getSourceLabel(lead.source)}>{getSourceLabel(lead.source)}</td>
+                      <td title={getStatusLabel(lead.status)}>
                         <span className={getStatusBadgeClass(lead.status)}>
                           {getStatusLabel(lead.status)}
                         </span>
                       </td>
-                      <td>{lead.assignedUsername || '-'}</td>
-                      <td>{formatDate(lead.createdAt)}</td>
+                      <td title={lead.assignedUsername || '-'}>{lead.assignedUsername || '-'}</td>
+                      <td title={formatDate(lead.createdAt)}>{formatDate(lead.createdAt)}</td>
                     </tr>
                   ))
                 )}
