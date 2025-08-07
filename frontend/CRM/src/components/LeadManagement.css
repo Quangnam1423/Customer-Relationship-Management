@@ -435,56 +435,62 @@
 /* Column widths for Lead Management table */
 .table th:nth-child(1),
 .table td:nth-child(1) {
-  width: 200px !important;
-  max-width: 200px !important;
+  width: 180px !important;
+  max-width: 180px !important;
 }
 
 .table th:nth-child(2),
 .table td:nth-child(2) {
-  width: 120px !important;
-  max-width: 120px !important;
+  width: 110px !important;
+  max-width: 110px !important;
 }
 
 .table th:nth-child(3),
 .table td:nth-child(3) {
-  width: 220px !important;
-  max-width: 220px !important;
+  width: 200px !important;
+  max-width: 200px !important;
 }
 
 .table th:nth-child(4),
 .table td:nth-child(4) {
-  width: 160px !important;
-  max-width: 160px !important;
-}
-
-.table th:nth-child(5),
-.table td:nth-child(5) {
-  width: 120px !important;
-  max-width: 120px !important;
-}
-
-.table th:nth-child(6),
-.table td:nth-child(6) {
-  width: 100px !important;
-  max-width: 100px !important;
-}
-
-.table th:nth-child(7),
-.table td:nth-child(7) {
-  width: 120px !important;
-  max-width: 120px !important;
-}
-
-.table th:nth-child(8),
-.table td:nth-child(8) {
   width: 140px !important;
   max-width: 140px !important;
 }
 
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 110px !important;
+  max-width: 110px !important;
+}
+
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  width: 90px !important;
+  max-width: 90px !important;
+}
+
+.table th:nth-child(7),
+.table td:nth-child(7) {
+  width: 110px !important;
+  max-width: 110px !important;
+}
+
+.table th:nth-child(8),
+.table td:nth-child(8) {
+  width: 130px !important;
+  max-width: 130px !important;
+}
+
 .table th:nth-child(9),
 .table td:nth-child(9) {
-  width: 120px !important;
-  max-width: 120px !important;
+  width: 130px !important;
+  max-width: 130px !important;
+}
+
+.table th:nth-child(10),
+.table td:nth-child(10) {
+  width: 110px !important;
+  max-width: 110px !important;
 }
 
 .table tbody tr {

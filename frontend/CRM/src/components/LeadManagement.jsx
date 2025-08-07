@@ -41,7 +41,7 @@ const LeadManagement = ({ currentUser }) => {
   });
 
   // Filter visibility state
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Provinces and other options
   const [provinces, setProvinces] = useState([]);
@@ -66,8 +66,13 @@ const LeadManagement = ({ currentUser }) => {
   }, []);
 
   useEffect(() => {
-    // Chỉ hiển thị tất cả leads mặc định, không tự động filter
-    setFilteredLeads(leads);
+    // Sắp xếp leads theo thời gian cập nhật gần nhất
+    const sortedLeads = [...leads].sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt);
+      const dateB = new Date(b.updatedAt || b.createdAt);
+      return dateB - dateA; // Sắp xếp giảm dần (mới nhất trước)
+    });
+    setFilteredLeads(sortedLeads);
   }, [leads]);
 
   const fetchLeads = async () => {
@@ -210,7 +215,14 @@ const LeadManagement = ({ currentUser }) => {
       );
     }
 
-    setFilteredLeads(filtered);
+    // Luôn sắp xếp theo thời gian cập nhật gần nhất
+    const sortedFiltered = filtered.sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt);
+      const dateB = new Date(b.updatedAt || b.createdAt);
+      return dateB - dateA;
+    });
+
+    setFilteredLeads(sortedFiltered);
   };
 
   const clearFilters = () => {
@@ -229,8 +241,13 @@ const LeadManagement = ({ currentUser }) => {
     };
     
     setFilters(clearedFilters);
-    // Reset to show all leads
-    setFilteredLeads(leads);
+    // Reset về danh sách được sắp xếp theo thời gian cập nhật
+    const sortedLeads = [...leads].sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt);
+      const dateB = new Date(b.updatedAt || b.createdAt);
+      return dateB - dateA;
+    });
+    setFilteredLeads(sortedLeads);
   };
 
   const handleSubmitLead = async (e) => {
@@ -348,7 +365,7 @@ const LeadManagement = ({ currentUser }) => {
             Quản lý danh sách khách hàng tiềm năng của bạn
             <small className="d-block mt-1">
               <i className="fas fa-info-circle me-1"></i>
-              Nhấn vào dòng để xem chi tiết lead
+              Nhấn vào dòng để xem chi tiết lead • Sắp xếp theo cập nhật gần nhất
             </small>
           </p>
         </div>
@@ -586,13 +603,14 @@ const LeadManagement = ({ currentUser }) => {
                   <th>Nguồn</th>
                   <th>Trạng thái</th>
                   <th>Người phụ trách</th>
+                  <th>Cập nhật lần cuối</th>
                   <th>Ngày tạo</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLeads.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="text-center text-muted">
+                    <td colSpan="10" className="text-center text-muted">
                       Không có lead nào phù hợp với bộ lọc
                     </td>
                   </tr>
@@ -617,6 +635,7 @@ const LeadManagement = ({ currentUser }) => {
                         </span>
                       </td>
                       <td title={lead.assignedUsername || '-'}>{lead.assignedUsername || '-'}</td>
+                      <td title={formatDate(lead.updatedAt)}>{formatDate(lead.updatedAt)}</td>
                       <td title={formatDate(lead.createdAt)}>{formatDate(lead.createdAt)}</td>
                     </tr>
                   ))
@@ -662,7 +681,7 @@ const LeadManagement = ({ currentUser }) => {
                 </div>
                 <div className="row">
                   <div className="col-12">
-                    <p><strong>Người tạo:</strong> {selectedLead.creator?.fullName || selectedLead.creator?.username}</p>
+                    <p><strong>Người tạo:</strong> {selectedLead.creatorUsername || 'Không rõ'}</p>
                     <p><strong>Ngày tạo:</strong> {formatDate(selectedLead.createdAt)}</p>
                     <p><strong>Cập nhật lần cuối:</strong> {formatDate(selectedLead.updatedAt)}</p>
                   </div>
