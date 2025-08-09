@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SearchableSelect from './SearchableSelect';
+import { Refresh } from '@mui/icons-material';
 import './LeadManagement_New.css';
 
 const LeadManagement = ({ currentUser }) => {
@@ -324,7 +325,7 @@ const LeadManagement = ({ currentUser }) => {
           onClick={fetchLeads}
           title="Tải lại danh sách"
         >
-          <i className="fas fa-sync-alt"></i>
+          <Refresh />
         </button>
         
         <button 
