@@ -1,0 +1,161 @@
+/* Lead Management Styles */
+.lead-management {
+  padding: 20px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Filter Section */
+.filter-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 20px;
+}
+
+.filter-section .position-relative .btn {
+  right: 8px !important;
+  z-index: 10;
+}
+
+.filter-section .position-relative .btn:hover {
+  color: #dc3545 !important;
+}
+
+/* Table Container */
+.table-container {
+  width: 100%;
+  overflow: visible;
+  margin-top: 10px;
+}
+
+.table-container .table {
+  width: 100%;
+  table-layout: fixed;
+  margin-bottom: 100px; /* Space for scrolling */
+}
+
+.table-container .table th,
+.table-container .table td {
+  padding: 8px 6px;
+  vertical-align: middle;
+  border-bottom: 1px solid #dee2e6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.table-container .table th {
+  background-color: #343a40 !important;
+  color: white !important;
+  font-weight: 600;
+  border-bottom: 2px solid #495057;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Row hover effects */
+.clickable-row:hover {
+  background-color: #f8f9fa !important;
+  cursor: pointer;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge Styles */
+.badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 3px 6px;
+}
+
+/* Buttons */
+.btn-outline-dark {
+  border-color: #343a40;
+  color: #343a40;
+}
+
+.btn-outline-dark:hover {
+  background-color: #343a40;
+  color: white;
+}
+
+.btn-dark {
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
+.btn-dark:hover {
+  background-color: #23272b;
+  border-color: #1d2124;
+}
+
+/* Loading states */
+.spinner-border {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Form controls in filters */
+.filter-section .form-control-sm,
+.filter-section .form-select-sm {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.filter-section .form-select-sm {
+  padding-right: 2rem;
+}
+
+/* Lead count badge */
+.badge.fs-6 {
+  font-size: 1rem !important;
+  font-weight: 500;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .lead-management {
+    padding: 15px;
+  }
+  
+  .filter-section .col-md-2 {
+    margin-bottom: 0.75rem;
+  }
+  
+  .table-container .table th,
+  .table-container .table td {
+    font-size: 0.75rem;
+    padding: 6px 4px;
+  }
+  
+  .badge {
+    font-size: 0.6rem;
+    padding: 2px 4px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .table-container .table th:nth-child(1) { width: 160px; }
+  .table-container .table th:nth-child(2) { width: 120px; }
+  .table-container .table th:nth-child(3) { width: 160px; }
+  .table-container .table th:nth-child(4) { width: 140px; }
+  .table-container .table th:nth-child(5) { width: 110px; }
+  .table-container .table th:nth-child(6) { width: 90px; }
+  .table-container .table th:nth-child(7) { width: 110px; }
+  .table-container .table th:nth-child(8) { width: 140px; }
+  .table-container .table th:nth-child(9) { width: 100px; }
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SearchableSelect from './SearchableSelect';
-import './LeadManagement.css';
+import './LeadManagement_New.css';
 
 const LeadManagement = ({ currentUser }) => {
   const [leads, setLeads] = useState([]);
@@ -27,21 +27,6 @@ const LeadManagement = ({ currentUser }) => {
 
   // Filter states
   const [filters, setFilters] = useState({
-    fullName: '',
-    phone: '',
-    email: '',
-    company: '',
-    province: '',
-    source: '',
-    status: '',
-    assignedUserId: '',
-    creatorId: '',
-    myAssignedLeads: false,
-    myCreatedLeads: false
-  });
-
-  // Applied filters state
-  const [appliedFilters, setAppliedFilters] = useState({
     fullName: '',
     phone: '',
     email: '',
@@ -84,25 +69,21 @@ const LeadManagement = ({ currentUser }) => {
       const dateB = new Date(b.updatedAt || b.createdAt);
       return dateB - dateA; // Sắp xếp giảm dần (mới nhất trước)
     });
-    setFilteredLeads(sortedLeads);
-  }, [leads]);
+    
+    // Auto apply filters when filters change
+    applyFiltersToLeads(filters, sortedLeads);
+  }, [leads, filters]);
 
   const fetchLeads = async () => {
     try {
       setLoading(true);
       const token = JSON.parse(localStorage.getItem('user'))?.token;
-      console.log('Fetching leads with token:', token ? 'Token exists' : 'No token');
-      
       const response = await axios.get('http://localhost:8080/api/leads', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
-      console.log('Leads response:', response.data);
-      console.log('Number of leads:', response.data.length);
       setLeads(response.data);
     } catch (error) {
       console.error('Error fetching leads:', error);
-      console.error('Error details:', error.response?.data);
     } finally {
       setLoading(false);
     }
@@ -160,22 +141,8 @@ const LeadManagement = ({ currentUser }) => {
     }).length;
   };
 
-  const getAppliedFiltersCount = () => {
-    return Object.entries(appliedFilters).filter(([key, value]) => {
-      if (typeof value === 'boolean') {
-        return value === true;
-      }
-      return value !== '' && value !== null;
-    }).length;
-  };
-
-  const applyFilters = () => {
-    setAppliedFilters({ ...filters });
-    applyFiltersToLeads(filters);
-  };
-
-  const applyFiltersToLeads = (filtersToApply) => {
-    let filtered = leads;
+  const applyFiltersToLeads = (filtersToApply, leadsToFilter = leads) => {
+    let filtered = leadsToFilter;
 
     // Apply basic text/select filters
     Object.keys(filtersToApply).forEach(filterKey => {
@@ -243,15 +210,7 @@ const LeadManagement = ({ currentUser }) => {
     };
     
     setFilters(clearedFilters);
-    setAppliedFilters(clearedFilters);
-    
-    // Reset về danh sách được sắp xếp theo thời gian cập nhật
-    const sortedLeads = [...leads].sort((a, b) => {
-      const dateA = new Date(a.updatedAt || a.createdAt);
-      const dateB = new Date(b.updatedAt || b.createdAt);
-      return dateB - dateA;
-    });
-    setFilteredLeads(sortedLeads);
+    // Auto-apply will happen via useEffect
   };
 
   const handleSubmitLead = async (e) => {
@@ -378,10 +337,20 @@ const LeadManagement = ({ currentUser }) => {
       </div>
 
       {/* Lead Count Badge */}
-      <div className="mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <span className="badge bg-primary fs-6 px-3 py-2">
           All ({filteredLeads.length})
         </span>
+        {getActiveFiltersCount() > 0 && (
+          <button 
+            className="btn btn-outline-secondary btn-sm"
+            onClick={clearFilters}
+            title="Xóa tất cả bộ lọc"
+          >
+            <i className="fas fa-times me-1"></i>
+            Xóa bộ lọc ({getActiveFiltersCount()})
+          </button>
+        )}
       </div>
 
       {/* Compact Filter Section */}
@@ -597,40 +566,30 @@ const LeadManagement = ({ currentUser }) => {
                 Do tôi tạo
               </label>
             </div>
-            {getActiveFiltersCount() > 0 && (
-              <button 
-                className="btn btn-success btn-sm ms-3"
-                onClick={applyFilters}
-              >
-                <i className="fas fa-filter me-1"></i>
-                Áp dụng ({getActiveFiltersCount()})
-              </button>
-            )}
           </div>
         </div>
       </div>
 
       {/* Lead Table */}
-      <div className="table-responsive">
-        <table className="table table-hover">
-          <thead className="table-light">
+      <div className="table-container">
+        <table className="table table-hover table-striped">
+          <thead className="table-dark sticky-top">
             <tr>
-              <th style={{ width: '180px', minWidth: '180px' }}>Tên khách hàng</th>
-              <th style={{ width: '120px', minWidth: '120px' }}>Điện thoại</th>
-              <th style={{ width: '200px', minWidth: '200px' }}>Email</th>
-              <th style={{ width: '150px', minWidth: '150px' }}>Công ty</th>
-              <th style={{ width: '120px', minWidth: '120px' }}>Tỉnh/TP</th>
-              <th style={{ width: '100px', minWidth: '100px' }}>Nguồn</th>
-              <th style={{ width: '120px', minWidth: '120px' }}>Trạng thái</th>
-              <th style={{ width: '140px', minWidth: '140px' }}>Người phụ trách</th>
-              <th style={{ width: '120px', minWidth: '120px' }}>Cập nhật</th>
-              <th style={{ width: '120px', minWidth: '120px' }}>Ngày tạo</th>
+              <th style={{ width: '140px' }}>Tên khách hàng</th>
+              <th style={{ width: '110px' }}>Điện thoại</th>
+              <th style={{ width: '140px' }}>Email</th>
+              <th style={{ width: '120px' }}>Công ty</th>
+              <th style={{ width: '100px' }}>Tỉnh/TP</th>
+              <th style={{ width: '80px' }}>Nguồn</th>
+              <th style={{ width: '100px' }}>Trạng thái</th>
+              <th style={{ width: '120px' }}>Người phụ trách</th>
+              <th style={{ width: '90px' }}>Cập nhật</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="10" className="text-center py-4">
+                <td colSpan="9" className="text-center py-4">
                   <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Đang tải...</span>
                   </div>
@@ -639,7 +598,7 @@ const LeadManagement = ({ currentUser }) => {
               </tr>
             ) : filteredLeads.length === 0 ? (
               <tr>
-                <td colSpan="10" className="text-center text-muted py-5">
+                <td colSpan="9" className="text-center text-muted py-5">
                   <i className="fas fa-search fa-2x mb-3 text-muted"></i>
                   <br />
                   {leads.length === 0 ? (
@@ -666,37 +625,34 @@ const LeadManagement = ({ currentUser }) => {
                   style={{ cursor: 'pointer' }}
                   title="Nhấn để xem chi tiết"
                 >
-                  <td className="text-truncate" style={{ maxWidth: '180px' }} title={lead.fullName}>
-                    {lead.fullName}
+                  <td className="text-truncate" title={lead.fullName}>
+                    <strong>{lead.fullName}</strong>
                   </td>
-                  <td className="text-truncate" style={{ maxWidth: '120px' }} title={lead.phone}>
+                  <td className="text-truncate" title={lead.phone}>
                     {lead.phone}
                   </td>
-                  <td className="text-truncate" style={{ maxWidth: '200px' }} title={lead.email || '-'}>
+                  <td className="text-truncate" title={lead.email || '-'}>
                     {lead.email || '-'}
                   </td>
-                  <td className="text-truncate" style={{ maxWidth: '150px' }} title={lead.company || '-'}>
+                  <td className="text-truncate" title={lead.company || '-'}>
                     {lead.company || '-'}
                   </td>
-                  <td className="text-truncate" style={{ maxWidth: '120px' }} title={getProvinceLabel(lead.province)}>
+                  <td className="text-truncate" title={getProvinceLabel(lead.province)}>
                     {getProvinceLabel(lead.province)}
                   </td>
-                  <td className="text-truncate" style={{ maxWidth: '100px' }} title={getSourceLabel(lead.source)}>
+                  <td className="text-truncate" title={getSourceLabel(lead.source)}>
                     {getSourceLabel(lead.source)}
                   </td>
-                  <td style={{ maxWidth: '120px' }}>
-                    <span className={`badge ${getStatusBadgeClass(lead.status)} text-truncate`} style={{ maxWidth: '110px' }}>
+                  <td>
+                    <span className={`badge ${getStatusBadgeClass(lead.status)} text-truncate`} style={{ fontSize: '0.7rem' }}>
                       {getStatusLabel(lead.status)}
                     </span>
                   </td>
-                  <td className="text-truncate" style={{ maxWidth: '140px' }} title={getAssignedUserLabel(lead.assignedUserId)}>
+                  <td className="text-truncate" title={getAssignedUserLabel(lead.assignedUserId)}>
                     {getAssignedUserLabel(lead.assignedUserId)}
                   </td>
-                  <td className="text-truncate" style={{ maxWidth: '120px' }} title={formatDate(lead.updatedAt)}>
+                  <td className="text-truncate" title={formatDate(lead.updatedAt)}>
                     {formatDate(lead.updatedAt)}
-                  </td>
-                  <td className="text-truncate" style={{ maxWidth: '120px' }} title={formatDate(lead.createdAt)}>
-                    {formatDate(lead.createdAt)}
                   </td>
                 </tr>
               ))

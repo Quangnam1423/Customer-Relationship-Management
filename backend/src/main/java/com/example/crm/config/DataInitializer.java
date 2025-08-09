@@ -3,6 +3,7 @@ package com.example.crm.config;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.crm.user.model.ERole;
 import com.example.crm.user.model.Role;
@@ -34,6 +35,7 @@ public class DataInitializer implements CommandLineRunner{
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         initializeRoles();
         initializeUsers();
@@ -137,131 +139,136 @@ public class DataInitializer implements CommandLineRunner{
     }
 
     private void initializeLeads() {
-        // Only initialize leads if there are none
-        if (leadRepository.count() == 0) {
-            User adminUser = userRepository.findByUsername("admin").orElse(null);
-            User marketingUser = userRepository.findByUsername("marketing").orElse(null);
-            User telesalesUser = userRepository.findByUsername("telesales").orElse(null);
+        // Clear existing leads and create new sample data
+        long existingLeadCount = leadRepository.count();
+        if (existingLeadCount > 0) {
+            System.out.println("Found " + existingLeadCount + " existing leads. Clearing all leads...");
+            leadRepository.deleteAll();
+            System.out.println("All existing leads have been deleted.");
+        }
+        
+        User adminUser = userRepository.findByUsername("admin").orElse(null);
+        User marketingUser = userRepository.findByUsername("marketing").orElse(null);
+        User telesalesUser = userRepository.findByUsername("telesales").orElse(null);
 
-            if (adminUser != null && marketingUser != null && telesalesUser != null) {
-                // Lead 1 - Nguyễn Văn A
-                Lead lead1 = new Lead();
-                lead1.setFullName("Nguyễn Văn A");
-                lead1.setPhone("0901234567");
-                lead1.setEmail("nguyenvana@gmail.com");
-                lead1.setCompany("Công ty ABC");
-                lead1.setProvince(VietnamProvince.HO_CHI_MINH);
-                lead1.setSource(LeadSource.WEBSITE);
-                lead1.setStatus(LeadStatus.CHUA_GOI);
-                lead1.setCreator(adminUser);
-                lead1.setAssignedUser(telesalesUser);
-                lead1.setNotes("Khách hàng quan tâm đến sản phẩm CRM");
-                leadRepository.save(lead1);
-
-                // Lead 2 - Trần Thị B
-                Lead lead2 = new Lead();
-                lead2.setFullName("Trần Thị B");
-                lead2.setPhone("0912345678");
-                lead2.setEmail("tranthib@yahoo.com");
-                lead2.setCompany("Công ty XYZ");
-                lead2.setProvince(VietnamProvince.HA_NOI);
-                lead2.setSource(LeadSource.FACEBOOK);
-                lead2.setStatus(LeadStatus.CHUA_GOI);
-                lead2.setCreator(marketingUser);
-                lead2.setAssignedUser(marketingUser);
-                lead2.setNotes("Đã gọi điện, khách quan tâm nhưng chưa quyết định");
-                leadRepository.save(lead2);
-
-                // Lead 3 - Lê Văn C
-                Lead lead3 = new Lead();
-                lead3.setFullName("Lê Văn C");
-                lead3.setPhone("0923456789");
-                lead3.setEmail("levanc@hotmail.com");
-                lead3.setCompany("Startup DEF");
-                lead3.setProvince(VietnamProvince.DA_NANG);
-                lead3.setSource(LeadSource.GOOGLE);
-                lead3.setStatus(LeadStatus.CHUA_GOI);
-                lead3.setCreator(adminUser);
-                lead3.setAssignedUser(telesalesUser);
-                lead3.setNotes("Lead chất lượng cao, đã demo sản phẩm");
-                leadRepository.save(lead3);
-
-                // Lead 4 - Phạm Thị D
-                Lead lead4 = new Lead();
-                lead4.setFullName("Phạm Thị D");
-                lead4.setPhone("0934567890");
-                lead4.setEmail("phamthid@gmail.com");
-                lead4.setCompany("");
-                lead4.setProvince(VietnamProvince.CAN_THO);
-                lead4.setSource(LeadSource.REFERRAL);
-                lead4.setStatus(LeadStatus.CHUA_GOI);
-                lead4.setCreator(telesalesUser);
-                lead4.setAssignedUser(marketingUser);
-                lead4.setNotes("Khách hàng cá nhân, đã gửi báo giá");
-                leadRepository.save(lead4);
-
-                // Lead 5 - Hoàng Văn E
-                Lead lead5 = new Lead();
-                lead5.setFullName("Hoàng Văn E");
-                lead5.setPhone("0945678901");
-                lead5.setEmail("hoangvane@company.com");
-                lead5.setCompany("Doanh nghiệp GHI");
-                lead5.setProvince(VietnamProvince.HAI_PHONG);
-                lead5.setSource(LeadSource.PHONE);
-                lead5.setStatus(LeadStatus.CHUA_GOI);
-                lead5.setCreator(marketingUser);
-                lead5.setAssignedUser(telesalesUser);
-                lead5.setNotes("Đang thảo luận điều khoản hợp đồng");
-                leadRepository.save(lead5);
-
-                // Lead 6 - Vũ Thị F
-                Lead lead6 = new Lead();
-                lead6.setFullName("Vũ Thị F");
-                lead6.setPhone("0956789012");
-                lead6.setEmail("vuthif@email.com");
-                lead6.setCompany("Công ty JKL");
-                lead6.setProvince(VietnamProvince.BINH_DUONG);
-                lead6.setSource(LeadSource.EMAIL);
-                lead6.setStatus(LeadStatus.CHUA_LIEN_HE_DUOC);
-                lead6.setCreator(adminUser);
-                lead6.setAssignedUser(marketingUser);
-                lead6.setNotes("Đã ký hợp đồng, khách hàng hài lòng");
-                leadRepository.save(lead6);
-
-                // Lead 7 - Đỗ Văn G
-                Lead lead7 = new Lead();
-                lead7.setFullName("Đỗ Văn G");
-                lead7.setPhone("0967890123");
-                lead7.setEmail("dovang@test.com");
-                lead7.setCompany("");
-                lead7.setProvince(VietnamProvince.DONG_NAI);
-                lead7.setSource(LeadSource.EVENT);
-                lead7.setStatus(LeadStatus.HUY);
-                lead7.setCreator(telesalesUser);
-                lead7.setAssignedUser(telesalesUser);
-                lead7.setNotes("Khách không phù hợp với ngân sách");
-                leadRepository.save(lead7);
-
-                // Lead 8 - Ngô Thị H
-                Lead lead8 = new Lead();
-                lead8.setFullName("Ngô Thị H");
-                lead8.setPhone("0978901234");
-                lead8.setEmail("ngothih@domain.com");
-                lead8.setCompany("Tập đoàn MNO");
-                lead8.setProvince(VietnamProvince.KHANH_HOA);
-                lead8.setSource(LeadSource.OTHER);
-                lead8.setStatus(LeadStatus.HUY);
-                lead8.setCreator(marketingUser);
-                lead8.setAssignedUser(null); // Chưa được gán
-                lead8.setNotes("Lead mới từ triển lãm");
-                leadRepository.save(lead8);
-
-                System.out.println("Created 8 sample leads successfully!");
-            } else {
-                System.out.println("Cannot create leads: Required users not found");
-            }
+        if (adminUser != null && marketingUser != null && telesalesUser != null) {
+            createSampleLeads(adminUser, marketingUser, telesalesUser);
+            System.out.println("Created 50 sample leads successfully!");
         } else {
-            System.out.println("Leads already exist, skipping initialization");
+            System.out.println("Cannot create leads: Required users not found");
+        }
+    }
+
+    @Transactional
+    private void createSampleLeads(User adminUser, User marketingUser, User telesalesUser) {
+        String[] firstNames = {
+            "Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Phan", "Vũ", "Đặng", "Bùi", "Đỗ",
+            "Hồ", "Ngô", "Dương", "Lý", "Võ", "Đào", "Đinh", "Tô", "Lưu", "Mai"
+        };
+        
+        String[] middleNames = {"Văn", "Thị", "Minh", "Thu", "Quốc", "Hữu", "Công", "Đình", "Xuân", "Thanh"};
+        
+        String[] lastNames = {
+            "An", "Bình", "Cường", "Dũng", "Em", "Phong", "Giang", "Hải", "Khoa", "Long",
+            "Mai", "Nam", "Oanh", "Phúc", "Quân", "Sơn", "Thắng", "Uyên", "Vinh", "Xuân",
+            "Yến", "Anh", "Bảo", "Chi", "Đạt", "Hùng", "Kiệt", "Linh", "Minh", "Nhân"
+        };
+        
+        String[] companies = {
+            "Công ty TNHH ABC", "Tập đoàn XYZ", "Công ty Cổ phần DEF", "Startup GHI", 
+            "Doanh nghiệp JKL", "Công ty MNO", "Tổ chức PQR", "Nhà máy STU", "Xí nghiệp VWX",
+            "Công ty YZ Tech", "ABC Solutions", "XYZ Digital", "Tech Innovate", "Smart Systems",
+            "Green Energy Co", "Blue Ocean Ltd", "Red Dragon Corp", "Golden Gate Inc",
+            "Silver Star Co", "Diamond Tech", "Platinum Solutions", "Crystal Clear Co",
+            "Bright Future Ltd", "New Vision Corp", "Global Connect", "Fast Track Co",
+            "Dynamic Systems", "Progressive Tech", "Advanced Solutions", "Next Gen Co"
+        };
+        
+        VietnamProvince[] provinces = VietnamProvince.values();
+        LeadSource[] sources = LeadSource.values();
+        LeadStatus[] statuses = LeadStatus.values();
+        User[] assignedUsers = {adminUser, marketingUser, telesalesUser, null}; // null for unassigned
+        User[] creators = {adminUser, marketingUser, telesalesUser};
+        
+        String[] notes = {
+            "Khách hàng quan tâm đến sản phẩm CRM",
+            "Đã gọi điện, khách quan tâm nhưng chưa quyết định",
+            "Lead chất lượng cao, đã demo sản phẩm",
+            "Khách hàng cá nhân, đã gửi báo giá",
+            "Đang thảo luận điều khoản hợp đồng",
+            "Đã ký hợp đồng, khách hàng hài lòng",
+            "Khách không phù hợp với ngân sách",
+            "Lead mới từ triển lãm",
+            "Cần tư vấn thêm về giá cả",
+            "Khách hàng tiềm năng cao",
+            "Đã gửi proposal, đang chờ phản hồi",
+            "Khách yêu cầu customization",
+            "Đang scheduling meeting",
+            "Follow up sau 1 tuần",
+            "Khách quan tâm package premium",
+            "Cần demo chi tiết hơn",
+            "Đã kết nối với decision maker",
+            "Yêu cầu reference từ khách hàng cũ",
+            "Đang đánh giá với competitor",
+            "Hot lead - priority cao"
+        };
+
+        for (int i = 1; i <= 50; i++) {
+            Lead lead = new Lead();
+            
+            // Random name generation
+            String firstName = firstNames[i % firstNames.length];
+            String middleName = middleNames[i % middleNames.length];
+            String lastName = lastNames[i % lastNames.length];
+            lead.setFullName(firstName + " " + middleName + " " + lastName);
+            
+            // Phone number
+            lead.setPhone(String.format("09%08d", 10000000 + i));
+            
+            // Email
+            String emailPrefix = lastName.toLowerCase().replaceAll("[^a-z]", "") + 
+                               middleName.toLowerCase().replaceAll("[^a-z]", "");
+            String[] emailDomains = {"gmail.com", "yahoo.com", "hotmail.com", "company.com", "email.com"};
+            lead.setEmail(emailPrefix + i + "@" + emailDomains[i % emailDomains.length]);
+            
+            // Company (some leads don't have company)
+            if (i % 4 != 0) { // 75% have company
+                lead.setCompany(companies[i % companies.length]);
+            } else {
+                lead.setCompany(""); // 25% individual customers
+            }
+            
+            // Province
+            lead.setProvince(provinces[i % provinces.length]);
+            
+            // Source
+            lead.setSource(sources[i % sources.length]);
+            
+            // Status - distribute realistically
+            if (i <= 20) {
+                lead.setStatus(LeadStatus.CHUA_GOI); // 40% not called yet
+            } else if (i <= 35) {
+                lead.setStatus(LeadStatus.CHUA_LIEN_HE_DUOC); // 30% couldn't reach
+            } else if (i <= 42) {
+                lead.setStatus(LeadStatus.WARM_LEAD); // 14% warm
+            } else if (i <= 47) {
+                lead.setStatus(LeadStatus.COLD_LEAD); // 10% cold
+            } else if (i <= 49) {
+                lead.setStatus(LeadStatus.TU_CHOI); // 4% rejected
+            } else {
+                lead.setStatus(LeadStatus.KY_HOP_DONG); // 2% signed
+            }
+            
+            // Creator
+            lead.setCreator(creators[i % creators.length]);
+            
+            // Assigned user (some unassigned)
+            lead.setAssignedUser(assignedUsers[i % assignedUsers.length]);
+            
+            // Notes
+            lead.setNotes(notes[i % notes.length]);
+            
+            leadRepository.save(lead);
         }
     }
 }
