@@ -2,6 +2,7 @@ package com.example.crm.lead.service;
 
 import com.example.crm.lead.dto.CreateLeadRequest;
 import com.example.crm.lead.dto.LeadResponse;
+import com.example.crm.lead.dto.LeadStatusHistoryResponse;
 import com.example.crm.lead.dto.UpdateLeadRequest;
 import com.example.crm.lead.model.Lead;
 import com.example.crm.lead.model.LeadStatus;
@@ -17,6 +18,7 @@ public interface LeadService {
     LeadResponse createLead(CreateLeadRequest request, Long creatorId);
     LeadResponse updateLead(Long leadId, UpdateLeadRequest request, Long updaterId);
     LeadResponse getLeadById(Long leadId);
+    LeadResponse getLeadByIdWithHistory(Long leadId); // Method mới để lấy lead với history
     void deleteLead(Long leadId);
     
     // Listing operations
@@ -51,4 +53,7 @@ public interface LeadService {
     
     // Assign lead to user
     LeadResponse assignLeadToUser(Long leadId, Long userId, Long assignerId);
+    
+    // Get status history for a lead
+    List<LeadStatusHistoryResponse> getLeadStatusHistory(Long leadId);
 }

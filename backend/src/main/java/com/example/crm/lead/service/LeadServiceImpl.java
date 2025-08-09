@@ -2,11 +2,14 @@ package com.example.crm.lead.service;
 
 import com.example.crm.lead.dto.CreateLeadRequest;
 import com.example.crm.lead.dto.LeadResponse;
+import com.example.crm.lead.dto.LeadStatusHistoryResponse;
 import com.example.crm.lead.dto.UpdateLeadRequest;
 import com.example.crm.lead.model.Lead;
 import com.example.crm.lead.model.LeadStatus;
+import com.example.crm.lead.model.LeadStatusHistory;
 import com.example.crm.lead.model.VietnamProvince;
 import com.example.crm.lead.repository.LeadRepository;
+import com.example.crm.lead.repository.LeadStatusHistoryRepository;
 import com.example.crm.user.model.User;
 import com.example.crm.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +30,7 @@ public class LeadServiceImpl implements LeadService {
 
     private final LeadRepository leadRepository;
     private final UserRepository userRepository;
+    private final LeadStatusHistoryRepository leadStatusHistoryRepository;
 
     @Override
     @Transactional
@@ -51,6 +56,11 @@ public class LeadServiceImpl implements LeadService {
         }
 
         lead = leadRepository.save(lead);
+        
+        // Tạo lịch sử trạng thái đầu tiên
+        LeadStatusHistory history = new LeadStatusHistory(lead, null, lead.getStatus(), creator, "Lead được tạo");
+        leadStatusHistoryRepository.save(history);
+        
         return convertToResponse(lead);
     }
 
@@ -62,6 +72,9 @@ public class LeadServiceImpl implements LeadService {
 
         User updater = userRepository.findById(updaterId)
                 .orElseThrow(() -> new RuntimeException("Updater not found"));
+        
+        // Lưu trạng thái cũ để so sánh
+        LeadStatus oldStatus = lead.getStatus();
 
         // Update fields if provided
         if (request.getFullName() != null) {
@@ -100,11 +113,26 @@ public class LeadServiceImpl implements LeadService {
         }
 
         lead = leadRepository.save(lead);
+        
+        // Lưu lịch sử thay đổi trạng thái nếu có thay đổi
+        if (request.getStatus() != null && !oldStatus.equals(request.getStatus())) {
+            String notes = request.getStatusChangeNote() != null ? request.getStatusChangeNote() : "Trạng thái được cập nhật";
+            LeadStatusHistory history = new LeadStatusHistory(lead, oldStatus, request.getStatus(), updater, notes);
+            leadStatusHistoryRepository.save(history);
+        }
+        
         return convertToResponse(lead);
     }
 
     @Override
     public LeadResponse getLeadById(Long leadId) {
+        Lead lead = leadRepository.findById(leadId)
+                .orElseThrow(() -> new RuntimeException("Lead not found"));
+        return convertToResponseWithoutHistory(lead);
+    }
+    
+    @Override
+    public LeadResponse getLeadByIdWithHistory(Long leadId) {
         Lead lead = leadRepository.findById(leadId)
                 .orElseThrow(() -> new RuntimeException("Lead not found"));
         return convertToResponse(lead);
@@ -122,7 +150,7 @@ public class LeadServiceImpl implements LeadService {
     @Override
     public List<LeadResponse> getAllLeads() {
         return leadRepository.findAll().stream()
-                .map(this::convertToResponse)
+                .map(this::convertToResponseWithoutHistory)
                 .collect(Collectors.toList());
     }
 
@@ -299,12 +327,21 @@ public class LeadServiceImpl implements LeadService {
         User updater = userRepository.findById(updaterId)
                 .orElseThrow(() -> new RuntimeException("Updater not found"));
 
+        LeadStatus oldStatus = lead.getStatus();
         lead.setStatus(status);
         if (notes != null) {
             lead.setNotes(notes);
         }
 
         lead = leadRepository.save(lead);
+        
+        // Tạo lịch sử thay đổi trạng thái
+        if (!oldStatus.equals(status)) {
+            String historyNotes = notes != null ? notes : "Trạng thái được cập nhật";
+            LeadStatusHistory history = new LeadStatusHistory(lead, oldStatus, status, updater, historyNotes);
+            leadStatusHistoryRepository.save(history);
+        }
+        
         return convertToResponse(lead);
     }
 
@@ -322,6 +359,10 @@ public class LeadServiceImpl implements LeadService {
 
         lead.setAssignedUser(assignedUser);
         lead = leadRepository.save(lead);
+        
+        // Ghi log assign (có thể mở rộng sau này để lưu lịch sử assign)
+        System.out.println("Lead " + leadId + " assigned to user " + userId + " by " + assigner.getUsername());
+        
         return convertToResponse(lead);
     }
 
@@ -355,6 +396,8 @@ public class LeadServiceImpl implements LeadService {
             response.setCreatorId(lead.getCreator().getId());
             response.setCreatorUsername(lead.getCreator().getUsername());
             response.setCreatorEmail(lead.getCreator().getEmail());
+            response.setCreatorFullName(lead.getCreator().getFullName() != null ? 
+                lead.getCreator().getFullName() : lead.getCreator().getUsername());
         }
 
         // Assigned user info
@@ -362,7 +405,86 @@ public class LeadServiceImpl implements LeadService {
             response.setAssignedUserId(lead.getAssignedUser().getId());
             response.setAssignedUsername(lead.getAssignedUser().getUsername());
             response.setAssignedEmail(lead.getAssignedUser().getEmail());
+            response.setAssignedFullName(lead.getAssignedUser().getFullName() != null ? 
+                lead.getAssignedUser().getFullName() : lead.getAssignedUser().getUsername());
         }
+        
+        // Load status history
+        List<LeadStatusHistory> histories = leadStatusHistoryRepository.findByLeadIdOrderByCreatedAtDesc(lead.getId());
+        List<LeadStatusHistoryResponse> historyResponses = histories.stream()
+                .map(this::convertToHistoryResponse)
+                .collect(Collectors.toList());
+        response.setStatusHistory(historyResponses);
+
+        return response;
+    }
+    
+    private LeadStatusHistoryResponse convertToHistoryResponse(LeadStatusHistory history) {
+        return new LeadStatusHistoryResponse(
+                history.getId(),
+                history.getOldStatus(),
+                history.getNewStatus(),
+                history.getUpdatedBy().getFullName() != null ? 
+                    history.getUpdatedBy().getFullName() : history.getUpdatedBy().getUsername(),
+                history.getUpdatedBy().getId(),
+                history.getNotes(),
+                history.getCreatedAt()
+        );
+    }
+    
+    @Override
+    public List<LeadStatusHistoryResponse> getLeadStatusHistory(Long leadId) {
+        List<LeadStatusHistory> histories = leadStatusHistoryRepository.findByLeadIdOrderByCreatedAtDesc(leadId);
+        return histories.stream()
+                .map(this::convertToHistoryResponse)
+                .collect(Collectors.toList());
+    }
+    
+    private LeadResponse convertToResponseWithoutHistory(Lead lead) {
+        LeadResponse response = new LeadResponse();
+        response.setId(lead.getId());
+        response.setFullName(lead.getFullName());
+        response.setProvince(lead.getProvince());
+        // Set province display name
+        if (lead.getProvince() != null) {
+            response.setProvinceDisplayName(lead.getProvince().getDisplayName());
+            response.setAreaDisplayName(lead.getProvince().getDisplayName()); // For backward compatibility
+        }
+        response.setPhone(lead.getPhone());
+        response.setEmail(lead.getEmail());
+        response.setCompany(lead.getCompany());
+        response.setSource(lead.getSource());
+        if (lead.getSource() != null) {
+            response.setSourceDisplayName(lead.getSource().getDisplayName());
+        }
+        response.setStatus(lead.getStatus());
+        if (lead.getStatus() != null) {
+            response.setStatusDisplayName(lead.getStatus().getDisplayName());
+        }
+        response.setNotes(lead.getNotes());
+        response.setCreatedAt(lead.getCreatedAt());
+        response.setUpdatedAt(lead.getUpdatedAt());
+
+        // Creator info
+        if (lead.getCreator() != null) {
+            response.setCreatorId(lead.getCreator().getId());
+            response.setCreatorUsername(lead.getCreator().getUsername());
+            response.setCreatorEmail(lead.getCreator().getEmail());
+            response.setCreatorFullName(lead.getCreator().getFullName() != null ? 
+                lead.getCreator().getFullName() : lead.getCreator().getUsername());
+        }
+
+        // Assigned user info
+        if (lead.getAssignedUser() != null) {
+            response.setAssignedUserId(lead.getAssignedUser().getId());
+            response.setAssignedUsername(lead.getAssignedUser().getUsername());
+            response.setAssignedEmail(lead.getAssignedUser().getEmail());
+            response.setAssignedFullName(lead.getAssignedUser().getFullName() != null ? 
+                lead.getAssignedUser().getFullName() : lead.getAssignedUser().getUsername());
+        }
+        
+        // Không load status history để tăng performance
+        response.setStatusHistory(new ArrayList<>());
 
         return response;
     }

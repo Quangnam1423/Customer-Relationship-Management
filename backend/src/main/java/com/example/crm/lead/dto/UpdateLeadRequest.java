@@ -18,4 +18,5 @@ public class UpdateLeadRequest {
     private LeadStatus status;
     private String notes;
     private Long assignedUserId;
+    private String statusChangeNote; // Ghi chú khi thay đổi trạng thái
 }

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,9 +32,14 @@ public class LeadResponse {
     private Long creatorId;
     private String creatorUsername;
     private String creatorEmail;
+    private String creatorFullName;
     
     // Assigned user info
     private Long assignedUserId;
     private String assignedUsername;
     private String assignedEmail;
+    private String assignedFullName;
+    
+    // Status history
+    private List<LeadStatusHistoryResponse> statusHistory;
 }

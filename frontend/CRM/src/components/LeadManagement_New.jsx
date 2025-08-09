@@ -12,6 +12,27 @@ const LeadManagement = ({ currentUser }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
   const [users, setUsers] = useState([]);
+  const [statusChangeNote, setStatusChangeNote] = useState(''); // Ghi chú khi thay đổi trạng thái
+  const [originalStatus, setOriginalStatus] = useState(null); // Lưu trạng thái gốc để so sánh
+
+  // Reset form function
+  const resetForm = () => {
+    setShowAddModal(false);
+    setEditingLead(null);
+    setOriginalStatus(null);
+    setStatusChangeNote('');
+    setFormData({
+      fullName: '',
+      phone: '',
+      email: '',
+      company: '',
+      province: '',
+      source: '',
+      status: 'CHUA_GOI',
+      assignedUserId: null,
+      notes: ''
+    });
+  };
 
   // Form data for add/edit
   const [formData, setFormData] = useState({
@@ -105,7 +126,7 @@ const LeadManagement = ({ currentUser }) => {
   const fetchUsers = async () => {
     try {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
-      const response = await axios.get('http://localhost:8080/api/users', {
+      const response = await axios.get('http://localhost:8080/api/users/assignable', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(response.data);
@@ -117,12 +138,29 @@ const LeadManagement = ({ currentUser }) => {
   const fetchLeadStatuses = async () => {
     try {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
-      const response = await axios.get('http://localhost:8080/api/lead-statuses', {
+      const response = await axios.get('http://localhost:8080/api/leads/statuses', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLeadStatuses(response.data);
     } catch (error) {
       console.error('Error fetching lead statuses:', error);
+    }
+  };
+
+  const fetchLeadDetails = async (leadId) => {
+    try {
+      const token = JSON.parse(localStorage.getItem('user'))?.token;
+      const response = await axios.get(`http://localhost:8080/api/leads/${leadId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSelectedLead(response.data);
+    } catch (error) {
+      console.error('Error fetching lead details:', error);
+      // Fallback to basic lead data if API fails
+      const basicLead = leads.find(lead => lead.id === leadId);
+      if (basicLead) {
+        setSelectedLead(basicLead);
+      }
     }
   };
 
@@ -229,7 +267,12 @@ const LeadManagement = ({ currentUser }) => {
 
       if (editingLead) {
         // Update existing lead
-        const response = await axios.put(`http://localhost:8080/api/leads/${editingLead.id}`, formData, config);
+        const updateData = { ...formData };
+        // Nếu trạng thái thay đổi và có ghi chú, thêm vào request
+        if (originalStatus !== formData.status && statusChangeNote.trim()) {
+          updateData.statusChangeNote = statusChangeNote.trim();
+        }
+        const response = await axios.put(`http://localhost:8080/api/leads/${editingLead.id}`, updateData, config);
         console.log('Update response:', response.data);
       } else {
         // Create new lead
@@ -241,19 +284,7 @@ const LeadManagement = ({ currentUser }) => {
       await fetchLeads();
       
       // Reset form and close modal
-      setShowAddModal(false);
-      setEditingLead(null);
-      setFormData({
-        fullName: '',
-        phone: '',
-        email: '',
-        company: '',
-        province: '',
-        source: '',
-        status: 'CHUA_GOI',
-        assignedUserId: null,
-        notes: ''
-      });
+      resetForm();
     } catch (error) {
       console.error('Error saving lead:', error);
       alert('Lỗi khi lưu lead: ' + (error.response?.data?.message || error.message));
@@ -262,6 +293,8 @@ const LeadManagement = ({ currentUser }) => {
 
   const handleEditLead = (lead) => {
     setEditingLead(lead);
+    setOriginalStatus(lead.status); // Lưu trạng thái gốc
+    setStatusChangeNote(''); // Reset ghi chú
     setFormData({
       fullName: lead.fullName || '',
       phone: lead.phone || '',
@@ -275,6 +308,11 @@ const LeadManagement = ({ currentUser }) => {
     });
     setShowAddModal(true);
     setSelectedLead(null); // Close detail modal
+    
+    // Đảm bảo leadStatuses đã được load
+    if (leadStatuses.length === 0) {
+      fetchLeadStatuses();
+    }
   };
 
   // Helper functions
@@ -330,7 +368,13 @@ const LeadManagement = ({ currentUser }) => {
         
         <button 
           className="btn btn-dark btn-sm"
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setShowAddModal(true);
+            // Đảm bảo leadStatuses đã được load
+            if (leadStatuses.length === 0) {
+              fetchLeadStatuses();
+            }
+          }}
         >
           <i className="fas fa-plus me-2"></i>
           Thêm Lead
@@ -584,13 +628,14 @@ const LeadManagement = ({ currentUser }) => {
               <th style={{ width: '80px' }}>Nguồn</th>
               <th style={{ width: '100px' }}>Trạng thái</th>
               <th style={{ width: '120px' }}>Người phụ trách</th>
+              <th style={{ width: '100px' }}>Người tạo</th>
               <th style={{ width: '90px' }}>Cập nhật</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="9" className="text-center py-4">
+                <td colSpan="10" className="text-center py-4">
                   <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Đang tải...</span>
                   </div>
@@ -599,7 +644,7 @@ const LeadManagement = ({ currentUser }) => {
               </tr>
             ) : filteredLeads.length === 0 ? (
               <tr>
-                <td colSpan="9" className="text-center text-muted py-5">
+                <td colSpan="10" className="text-center text-muted py-5">
                   <i className="fas fa-search fa-2x mb-3 text-muted"></i>
                   <br />
                   {leads.length === 0 ? (
@@ -622,7 +667,7 @@ const LeadManagement = ({ currentUser }) => {
                 <tr 
                   key={lead.id} 
                   className="clickable-row"
-                  onClick={() => setSelectedLead(lead)}
+                  onClick={() => fetchLeadDetails(lead.id)}
                   style={{ cursor: 'pointer' }}
                   title="Nhấn để xem chi tiết"
                 >
@@ -651,6 +696,10 @@ const LeadManagement = ({ currentUser }) => {
                   </td>
                   <td className="text-truncate" title={getAssignedUserLabel(lead.assignedUserId)}>
                     {getAssignedUserLabel(lead.assignedUserId)}
+                  </td>
+                  <td className="text-truncate" title={lead.creatorFullName || lead.creatorUsername}>
+                    <i className="fas fa-user-plus me-1 text-success" style={{fontSize: '0.7rem'}}></i>
+                    {lead.creatorFullName || lead.creatorUsername}
                   </td>
                   <td className="text-truncate" title={formatDate(lead.updatedAt)}>
                     {formatDate(lead.updatedAt)}
@@ -692,12 +741,19 @@ const LeadManagement = ({ currentUser }) => {
                       </span>
                     </p>
                     <p><strong>Người phụ trách:</strong> {getAssignedUserLabel(selectedLead.assignedUserId)}</p>
+                    <p><strong>Người tạo:</strong> 
+                      <i className="fas fa-user-plus me-1 text-success"></i>
+                      {selectedLead.creatorFullName || selectedLead.creatorUsername || 'Không xác định'}
+                      {selectedLead.creatorEmail && (
+                        <small className="text-muted ms-2">({selectedLead.creatorEmail})</small>
+                      )}
+                    </p>
                     <p><strong>Ngày tạo:</strong> {formatDate(selectedLead.createdAt)}</p>
                     <p><strong>Cập nhật lần cuối:</strong> {formatDate(selectedLead.updatedAt)}</p>
                   </div>
                 </div>
                 {selectedLead.notes && (
-                  <div className="row">
+                  <div className="row mb-3">
                     <div className="col-12">
                       <p><strong>Ghi chú:</strong></p>
                       <div className="p-3 bg-light rounded">
@@ -706,6 +762,61 @@ const LeadManagement = ({ currentUser }) => {
                     </div>
                   </div>
                 )}
+                
+                {/* Lịch sử trạng thái */}
+                <div className="row">
+                  <div className="col-12">
+                    <p><strong><i className="fas fa-history me-1"></i>Lịch sử trạng thái:</strong></p>
+                    {selectedLead.statusHistory && selectedLead.statusHistory.length > 0 ? (
+                      <div className="status-history" style={{maxHeight: '250px', overflowY: 'auto', border: '1px solid #dee2e6', borderRadius: '0.375rem', padding: '10px', backgroundColor: '#f8f9fa'}}>
+                        {selectedLead.statusHistory.map((history, index) => (
+                          <div key={history.id} className={`d-flex align-items-start mb-3 p-3 rounded ${index === 0 ? 'bg-white border-start border-primary border-3' : 'bg-light'}`}>
+                            <div className="me-3">
+                              <i className="fas fa-circle text-primary" style={{fontSize: '8px', marginTop: '6px'}}></i>
+                            </div>
+                            <div className="flex-grow-1">
+                              <div className="d-flex align-items-center mb-2">
+                                {history.oldStatus && (
+                                  <>
+                                    <span className={`badge ${getStatusBadgeClass(history.oldStatus)} me-2`} style={{fontSize: '0.75rem'}}>
+                                      {getStatusLabel(history.oldStatus)}
+                                    </span>
+                                    <i className="fas fa-arrow-right mx-2 text-muted" style={{fontSize: '0.8rem'}}></i>
+                                  </>
+                                )}
+                                <span className={`badge ${getStatusBadgeClass(history.newStatus)}`} style={{fontSize: '0.75rem'}}>
+                                  {getStatusLabel(history.newStatus)}
+                                </span>
+                                {index === 0 && (
+                                  <span className="badge bg-success ms-2" style={{fontSize: '0.65rem'}}>Mới nhất</span>
+                                )}
+                              </div>
+                              <div className="d-flex align-items-center mb-1">
+                                <i className="fas fa-user me-2 text-primary" style={{fontSize: '0.8rem'}}></i>
+                                <strong className="text-dark" style={{fontSize: '0.9rem'}}>{history.updatedByName}</strong>
+                                <span className="text-muted mx-2">•</span>
+                                <i className="fas fa-clock me-1 text-muted" style={{fontSize: '0.7rem'}}></i>
+                                <small className="text-muted">{formatDate(history.createdAt)}</small>
+                              </div>
+                              {history.notes && (
+                                <div className="mt-2 p-2 bg-info bg-opacity-10 rounded border-start border-info border-3">
+                                  <i className="fas fa-comment me-2 text-info" style={{fontSize: '0.8rem'}}></i>
+                                  <small className="text-dark">{history.notes}</small>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted p-4" style={{border: '2px dashed #dee2e6', borderRadius: '0.375rem', backgroundColor: '#f8f9fa'}}>
+                        <i className="fas fa-history fa-3x mb-3 text-muted"></i>
+                        <p className="mb-0">Chưa có lịch sử thay đổi trạng thái</p>
+                        <small>Lịch sử sẽ được ghi lại khi bạn cập nhật trạng thái lead</small>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="modal-footer">
                 <button 
@@ -741,21 +852,7 @@ const LeadManagement = ({ currentUser }) => {
                 <button 
                   type="button" 
                   className="btn-close" 
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditingLead(null);
-                    setFormData({
-                      fullName: '',
-                      phone: '',
-                      email: '',
-                      company: '',
-                      province: '',
-                      source: '',
-                      status: 'CHUA_GOI',
-                      assignedUserId: null,
-                      notes: ''
-                    });
-                  }}
+                  onClick={resetForm}
                 ></button>
               </div>
               <div className="modal-body">
@@ -887,16 +984,67 @@ const LeadManagement = ({ currentUser }) => {
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                           >
-                            {leadStatuses.map(status => (
-                              <option key={status.value} value={status.value}>
-                                {status.label}
-                              </option>
-                            ))}
+                            {leadStatuses.length > 0 ? (
+                              leadStatuses.map(status => (
+                                <option key={status.value} value={status.value}>
+                                  {status.label}
+                                </option>
+                              ))
+                            ) : (
+                              // Fallback options nếu API chưa load được
+                              <>
+                                <option value="CHUA_GOI">Chưa gọi</option>
+                                <option value="DA_GOI">Đã gọi</option>
+                                <option value="DA_NHAN">Đã nhận</option>
+                                <option value="KHONG_NHAN">Không nhận</option>
+                                <option value="DA_HUY">Đã hủy</option>
+                              </>
+                            )}
                           </select>
+                          {leadStatuses.length === 0 && (
+                            <small className="text-muted">Đang tải danh sách trạng thái...</small>
+                          )}
                         </div>
                       </div>
                     )}
                   </div>
+
+                  {/* Trường ghi chú khi thay đổi trạng thái */}
+                  {editingLead && originalStatus && originalStatus !== formData.status && (
+                    <div className="row mb-3">
+                      <div className="col-12">
+                        <div className="alert alert-info border-start border-info border-4 bg-info bg-opacity-10">
+                          <div className="d-flex align-items-center mb-2">
+                            <i className="fas fa-info-circle me-2 text-info"></i>
+                            <small className="text-dark">
+                              <strong>Thay đổi trạng thái:</strong>
+                            </small>
+                          </div>
+                          <div className="d-flex align-items-center">
+                            <span className={`badge ${getStatusBadgeClass(originalStatus)} me-2`}>
+                              {getStatusLabel(originalStatus)}
+                            </span>
+                            <i className="fas fa-arrow-right mx-2 text-muted"></i>
+                            <span className={`badge ${getStatusBadgeClass(formData.status)}`}>
+                              {getStatusLabel(formData.status)}
+                            </span>
+                          </div>
+                        </div>
+                        <label htmlFor="statusChangeNote" className="form-label">
+                          <i className="fas fa-edit me-1"></i>
+                          Ghi chú thay đổi trạng thái
+                        </label>
+                        <textarea
+                          className="form-control border-info"
+                          id="statusChangeNote"
+                          rows="2"
+                          value={statusChangeNote}
+                          onChange={(e) => setStatusChangeNote(e.target.value)}
+                          placeholder="Nhập lý do thay đổi trạng thái (tùy chọn)..."
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <div className="mb-3">
                     <label htmlFor="notes" className="form-label">Ghi chú</label>
@@ -914,21 +1062,7 @@ const LeadManagement = ({ currentUser }) => {
                     <button
                       type="button"
                       className="btn btn-secondary me-2"
-                      onClick={() => {
-                        setShowAddModal(false);
-                        setEditingLead(null);
-                        setFormData({
-                          fullName: '',
-                          phone: '',
-                          email: '',
-                          company: '',
-                          province: '',
-                          source: '',
-                          status: 'CHUA_GOI',
-                          assignedUserId: null,
-                          notes: ''
-                        });
-                      }}
+                      onClick={resetForm}
                     >
                       Hủy
                     </button>

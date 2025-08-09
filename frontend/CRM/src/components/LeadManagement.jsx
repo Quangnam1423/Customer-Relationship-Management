@@ -124,7 +124,7 @@ const LeadManagement = ({ currentUser }) => {
   const fetchUsers = async () => {
     try {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
-      const response = await axios.get('http://localhost:8080/api/users', {
+      const response = await axios.get('http://localhost:8080/api/users/assignable', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(response.data);
@@ -136,12 +136,29 @@ const LeadManagement = ({ currentUser }) => {
   const fetchLeadStatuses = async () => {
     try {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
-      const response = await axios.get('http://localhost:8080/api/lead-statuses', {
+      const response = await axios.get('http://localhost:8080/api/leads/statuses', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLeadStatuses(response.data);
     } catch (error) {
       console.error('Error fetching lead statuses:', error);
+    }
+  };
+
+  const fetchLeadDetails = async (leadId) => {
+    try {
+      const token = JSON.parse(localStorage.getItem('user'))?.token;
+      const response = await axios.get(`http://localhost:8080/api/leads/${leadId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSelectedLead(response.data);
+    } catch (error) {
+      console.error('Error fetching lead details:', error);
+      // Fallback to basic lead data if API fails
+      const basicLead = leads.find(lead => lead.id === leadId);
+      if (basicLead) {
+        setSelectedLead(basicLead);
+      }
     }
   };
 
@@ -663,7 +680,7 @@ const LeadManagement = ({ currentUser }) => {
                 <tr 
                   key={lead.id} 
                   className="clickable-row"
-                  onClick={() => setSelectedLead(lead)}
+                  onClick={() => fetchLeadDetails(lead.id)}
                   style={{ cursor: 'pointer' }}
                   title="Nhấn để xem chi tiết"
                 >
@@ -736,6 +753,7 @@ const LeadManagement = ({ currentUser }) => {
                       </span>
                     </p>
                     <p><strong>Người phụ trách:</strong> {getAssignedUserLabel(selectedLead.assignedUserId)}</p>
+                    <p><strong>Người tạo:</strong> {selectedLead.creatorFullName || selectedLead.creatorUsername || 'Chưa xác định'}</p>
                     <p><strong>Ngày tạo:</strong> {formatDate(selectedLead.createdAt)}</p>
                     <p><strong>Cập nhật lần cuối:</strong> {formatDate(selectedLead.updatedAt)}</p>
                   </div>
@@ -750,6 +768,51 @@ const LeadManagement = ({ currentUser }) => {
                     </div>
                   </div>
                 )}
+                
+                {/* Lịch sử trạng thái */}
+                <div className="row mt-3">
+                  <div className="col-12">
+                    <p><strong><i className="fas fa-history me-1"></i>Lịch sử trạng thái:</strong></p>
+                    {selectedLead.statusHistory && selectedLead.statusHistory.length > 0 ? (
+                      <div className="status-history" style={{maxHeight: '250px', overflowY: 'auto', border: '1px solid #dee2e6', borderRadius: '0.375rem', padding: '10px', backgroundColor: '#f8f9fa'}}>
+                        {selectedLead.statusHistory.map((history, index) => (
+                          <div key={history.id} className={`d-flex align-items-start mb-3 p-3 rounded ${index === 0 ? 'bg-white border-start border-primary border-3' : 'bg-light'}`}>
+                            <div className="me-3">
+                              <i className="fas fa-circle text-primary" style={{fontSize: '8px', marginTop: '6px'}}></i>
+                            </div>
+                            <div className="flex-grow-1">
+                              <div className="d-flex align-items-center mb-2">
+                                {history.oldStatus && (
+                                  <>
+                                    <span className={`badge ${getStatusBadgeClass(history.oldStatus)} me-2`} style={{fontSize: '0.75rem'}}>
+                                      {getStatusLabel(history.oldStatus)}
+                                    </span>
+                                    <i className="fas fa-arrow-right text-muted me-2"></i>
+                                  </>
+                                )}
+                                <span className={`badge ${getStatusBadgeClass(history.newStatus)}`} style={{fontSize: '0.75rem'}}>
+                                  {getStatusLabel(history.newStatus)}
+                                </span>
+                              </div>
+                              <div className="text-muted small">
+                                <div><strong>Người cập nhật:</strong> {history.updatedByUserName || 'Hệ thống'}</div>
+                                <div><strong>Thời gian:</strong> {formatDate(history.updatedAt)}</div>
+                                {history.notes && (
+                                  <div><strong>Ghi chú:</strong> {history.notes}</div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-muted text-center p-3 border rounded bg-light">
+                        <i className="fas fa-info-circle me-2"></i>
+                        Chưa có lịch sử cập nhật trạng thái
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="modal-footer">
                 <button 

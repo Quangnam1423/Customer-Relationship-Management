@@ -48,7 +48,7 @@ public class LeadController {
     // Get lead by ID
     @GetMapping("/{id}")
     public ResponseEntity<LeadResponse> getLeadById(@PathVariable Long id) {
-        LeadResponse response = leadService.getLeadById(id);
+        LeadResponse response = leadService.getLeadByIdWithHistory(id);
         return ResponseEntity.ok(response);
     }
 
@@ -214,5 +214,15 @@ public class LeadController {
                 ))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(statuses);
+    }
+    
+    // Get status history for a lead
+    @GetMapping("/{id}/status-history")
+    public ResponseEntity<?> getLeadStatusHistory(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(leadService.getLeadStatusHistory(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }

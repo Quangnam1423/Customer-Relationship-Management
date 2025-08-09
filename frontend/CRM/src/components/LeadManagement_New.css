@@ -157,5 +157,34 @@
   .table-container .table th:nth-child(6) { width: 90px; }
   .table-container .table th:nth-child(7) { width: 110px; }
   .table-container .table th:nth-child(8) { width: 140px; }
-  .table-container .table th:nth-child(9) { width: 100px; }
+  .table-container .table th:nth-child(9) { width: 120px; }
+  .table-container .table th:nth-child(10) { width: 100px; }
+}
+
+/* Status History Styles */
+.status-history {
+  scrollbar-width: thin;
+  scrollbar-color: #6c757d #f8f9fa;
+}
+
+.status-history::-webkit-scrollbar {
+  width: 6px;
+}
+
+.status-history::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.status-history::-webkit-scrollbar-thumb {
+  background: #6c757d;
+  border-radius: 3px;
+}
+
+.status-history::-webkit-scrollbar-thumb:hover {
+  background: #495057;
+}
+
+.status-history .border-start {
+  border-left-width: 3px !important;
 }
