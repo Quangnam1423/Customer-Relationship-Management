@@ -4,7 +4,7 @@ import SearchableSelect from './SearchableSelect';
 import { Refresh } from '@mui/icons-material';
 import './LeadManagement.css';
 
-const LeadManagement = ({ currentUser }) => {
+const LeadManagement = () => {
   const [leads, setLeads] = useState([]);
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +12,9 @@ const LeadManagement = ({ currentUser }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
   const [users, setUsers] = useState([]);
+
+  // Get current user from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('user'));
 
   // Form data for add/edit
   const [formData, setFormData] = useState({
@@ -105,6 +108,28 @@ const LeadManagement = ({ currentUser }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleReloadLeads = async () => {
+    // Clear all filters first
+    const clearedFilters = {
+      fullName: '',
+      phone: '',
+      email: '',
+      company: '',
+      province: '',
+      source: '',
+      status: '',
+      assignedUserId: '',
+      creatorId: '',
+      myAssignedLeads: false,
+      myCreatedLeads: false
+    };
+    
+    setFilters(clearedFilters);
+    setAppliedFilters(clearedFilters); // Also clear applied filters
+    // Reload leads data
+    await fetchLeads();
   };
 
   const fetchProvinces = async () => {
@@ -409,8 +434,8 @@ const LeadManagement = ({ currentUser }) => {
           
           <button 
             className="btn btn-sm btn-primary"
-            onClick={fetchLeads}
-            title="Tải lại danh sách"
+            onClick={handleReloadLeads}
+            title="Tải lại danh sách và xóa bộ lọc"
           >
             <Refresh />
           </button>

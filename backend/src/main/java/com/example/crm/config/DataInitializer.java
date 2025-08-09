@@ -15,6 +15,7 @@ import com.example.crm.lead.model.LeadSource;
 import com.example.crm.lead.model.LeadStatus;
 import com.example.crm.lead.model.VietnamProvince;
 import com.example.crm.lead.repository.LeadRepository;
+import com.example.crm.lead.repository.LeadStatusHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
@@ -30,6 +31,9 @@ public class DataInitializer implements CommandLineRunner{
 
     @Autowired
     private LeadRepository leadRepository;
+
+    @Autowired
+    private LeadStatusHistoryRepository leadStatusHistoryRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -142,7 +146,11 @@ public class DataInitializer implements CommandLineRunner{
         // Clear existing leads and create new sample data
         long existingLeadCount = leadRepository.count();
         if (existingLeadCount > 0) {
-            System.out.println("Found " + existingLeadCount + " existing leads. Clearing all leads...");
+            System.out.println("Found " + existingLeadCount + " existing leads. Clearing all leads and status history...");
+            // Delete lead status history first to avoid foreign key constraint violations
+            leadStatusHistoryRepository.deleteAll();
+            System.out.println("All lead status history records have been deleted.");
+            // Then delete the leads
             leadRepository.deleteAll();
             System.out.println("All existing leads have been deleted.");
         }
@@ -186,7 +194,6 @@ public class DataInitializer implements CommandLineRunner{
         
         VietnamProvince[] provinces = VietnamProvince.values();
         LeadSource[] sources = LeadSource.values();
-        LeadStatus[] statuses = LeadStatus.values();
         User[] assignedUsers = {adminUser, marketingUser, telesalesUser, null}; // null for unassigned
         User[] creators = {adminUser, marketingUser, telesalesUser};
         

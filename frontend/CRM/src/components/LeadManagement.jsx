@@ -4,7 +4,7 @@ import SearchableSelect from './SearchableSelect';
 import { Refresh } from '@mui/icons-material';
 import './LeadManagement.css';
 
-const LeadManagement = ({ currentUser }) => {
+const LeadManagement = () => {
   const [leads, setLeads] = useState([]);
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +12,9 @@ const LeadManagement = ({ currentUser }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLead, setEditingLead] = useState(null);
   const [users, setUsers] = useState([]);
+
+  // Get current user from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('user'));
 
   // Form data for add/edit
   const [formData, setFormData] = useState({
@@ -109,6 +112,27 @@ const LeadManagement = ({ currentUser }) => {
     }
   };
 
+  const handleReloadLeads = async () => {
+    // Clear all filters first
+    const clearedFilters = {
+      fullName: '',
+      phone: '',
+      email: '',
+      company: '',
+      province: '',
+      source: '',
+      status: '',
+      assignedUserId: '',
+      creatorId: '',
+      myAssignedLeads: false,
+      myCreatedLeads: false
+    };
+    
+    setFilters(clearedFilters);
+    // Reload leads data
+    await fetchLeads();
+  };
+
   const fetchProvinces = async () => {
     try {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
@@ -163,6 +187,7 @@ const LeadManagement = ({ currentUser }) => {
   };
 
   const handleFilterChange = (key, value) => {
+    console.log('Filter changed:', key, '=', value, 'currentUser:', currentUser?.id);
     setFilters(prev => ({
       ...prev,
       [key]: value
@@ -223,16 +248,34 @@ const LeadManagement = ({ currentUser }) => {
 
     // Apply "My Assigned Leads" filter
     if (filtersToApply.myAssignedLeads && currentUser) {
-      filtered = filtered.filter(lead => 
-        lead.assignedUserId && lead.assignedUserId.toString() === currentUser.id.toString()
-      );
+      console.log('Applying myAssignedLeads filter', {
+        currentUserId: currentUser.id,
+        totalLeads: filtered.length
+      });
+      filtered = filtered.filter(lead => {
+        const matches = lead.assignedUserId && lead.assignedUserId.toString() === currentUser.id.toString();
+        if (matches) {
+          console.log('Lead matched myAssignedLeads:', lead.fullName, lead.assignedUserId);
+        }
+        return matches;
+      });
+      console.log('After myAssignedLeads filter:', filtered.length);
     }
 
     // Apply "My Created Leads" filter
     if (filtersToApply.myCreatedLeads && currentUser) {
-      filtered = filtered.filter(lead => 
-        lead.creatorId && lead.creatorId.toString() === currentUser.id.toString()
-      );
+      console.log('Applying myCreatedLeads filter', {
+        currentUserId: currentUser.id,
+        totalLeads: filtered.length
+      });
+      filtered = filtered.filter(lead => {
+        const matches = lead.creatorId && lead.creatorId.toString() === currentUser.id.toString();
+        if (matches) {
+          console.log('Lead matched myCreatedLeads:', lead.fullName, lead.creatorId);
+        }
+        return matches;
+      });
+      console.log('After myCreatedLeads filter:', filtered.length);
     }
 
     // Luôn sắp xếp theo thời gian cập nhật gần nhất
@@ -380,8 +423,8 @@ const LeadManagement = ({ currentUser }) => {
       <div className="d-flex justify-content-end mb-3">
         <button 
           className="btn btn-outline-dark btn-sm me-2"
-          onClick={fetchLeads}
-          title="Tải lại danh sách"
+          onClick={handleReloadLeads}
+          title="Tải lại danh sách và xóa bộ lọc"
         >
           <Refresh />
         </button>
