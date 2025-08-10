@@ -24,6 +24,11 @@
   color: #dc3545 !important;
 }
 
+/* Date inputs styling */
+.filter-section input[type="date"] {
+  padding-right: 30px; /* Space for X button */
+}
+
 /* Table Container */
 .table-container {
   width: 100%;

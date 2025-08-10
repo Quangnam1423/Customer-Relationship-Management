@@ -2,23 +2,34 @@ package com.example.crm.excel.service;
 
 import com.example.crm.lead.model.*;
 
+import io.jsonwebtoken.io.IOException;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
+
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelExportService {
 
-    // This class will handle the logic for exporting data to Excel files.
-    // It will use Apache POI library to create and manipulate Excel files.
+    public ByteArrayInputStream exportLeadsToExcel(List<Lead> leads, List<String> fields) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(); 
+        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("Leads");
 
-    // Example method to export orders to an Excel file
-    public void exportOrdersToExcel(List<Lead> orders) {
-        // Implementation goes here
+            CellStyle headerCellStyle = workbook.createCellStyle();
+
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
-
-    // Example method to export customers to an Excel file
-    public void exportCustomersToExcel(List<Lead> customers) {
-        // Implementation goes here
-    }
-
-    // Additional methods for exporting other entities can be added here
     
 }

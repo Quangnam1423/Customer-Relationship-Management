@@ -144,6 +144,11 @@ public class LeadServiceImpl implements LeadService {
         if (!leadRepository.existsById(leadId)) {
             throw new RuntimeException("Lead not found");
         }
+        
+        // Xóa lịch sử trạng thái trước khi xóa lead
+        leadStatusHistoryRepository.deleteByLeadId(leadId);
+        
+        // Sau đó xóa lead
         leadRepository.deleteById(leadId);
     }
 

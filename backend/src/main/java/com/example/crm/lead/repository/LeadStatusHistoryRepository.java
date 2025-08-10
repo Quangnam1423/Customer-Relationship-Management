@@ -18,4 +18,7 @@ public interface LeadStatusHistoryRepository extends JpaRepository<LeadStatusHis
     // Tìm lịch sử trạng thái theo lead ID, sắp xếp theo thời gian cũ nhất
     @Query("SELECT h FROM LeadStatusHistory h WHERE h.lead.id = :leadId ORDER BY h.createdAt ASC")
     List<LeadStatusHistory> findByLeadIdOrderByCreatedAtAsc(@Param("leadId") Long leadId);
+    
+    // Xóa tất cả lịch sử trạng thái theo lead ID
+    void deleteByLeadId(Long leadId);
 }

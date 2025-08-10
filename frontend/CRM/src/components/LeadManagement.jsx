@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SearchableSelect from './SearchableSelect';
 import { Refresh } from '@mui/icons-material';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import './LeadManagement.css';
 
 const LeadManagement = () => {
@@ -41,7 +43,9 @@ const LeadManagement = () => {
     assignedUserId: '',
     creatorId: '',
     myAssignedLeads: false,
-    myCreatedLeads: false
+    myCreatedLeads: false,
+    createdDateFrom: null,
+    createdDateTo: null
   });
 
   // Applied filters state
@@ -56,7 +60,9 @@ const LeadManagement = () => {
     assignedUserId: '',
     creatorId: '',
     myAssignedLeads: false,
-    myCreatedLeads: false
+    myCreatedLeads: false,
+    createdDateFrom: null,
+    createdDateTo: null
   });
 
   // Provinces and other options
@@ -223,7 +229,8 @@ const LeadManagement = () => {
     // Apply basic text/select filters
     Object.keys(filtersToApply).forEach(filterKey => {
       const filterValue = filtersToApply[filterKey];
-      if (filterKey === 'myAssignedLeads' || filterKey === 'myCreatedLeads') {
+      if (filterKey === 'myAssignedLeads' || filterKey === 'myCreatedLeads' || 
+          filterKey === 'createdDateFrom' || filterKey === 'createdDateTo') {
         return; // Skip these special filters
       }
       
@@ -245,6 +252,34 @@ const LeadManagement = () => {
         });
       }
     });
+
+    // Apply date range filter
+    if (filtersToApply.createdDateFrom || filtersToApply.createdDateTo) {
+      filtered = filtered.filter(lead => {
+        const leadDate = new Date(lead.createdAt);
+        let matchesDateRange = true;
+
+        if (filtersToApply.createdDateFrom) {
+          const fromDate = new Date(filtersToApply.createdDateFrom);
+          fromDate.setHours(0, 0, 0, 0);
+          matchesDateRange = matchesDateRange && leadDate >= fromDate;
+        }
+
+        // If createdDateTo is not specified but createdDateFrom is, use current date as end date
+        if (filtersToApply.createdDateTo) {
+          const toDate = new Date(filtersToApply.createdDateTo);
+          toDate.setHours(23, 59, 59, 999);
+          matchesDateRange = matchesDateRange && leadDate <= toDate;
+        } else if (filtersToApply.createdDateFrom) {
+          // Default to current date if only "from date" is specified
+          const toDate = new Date();
+          toDate.setHours(23, 59, 59, 999);
+          matchesDateRange = matchesDateRange && leadDate <= toDate;
+        }
+
+        return matchesDateRange;
+      });
+    }
 
     // Apply "My Assigned Leads" filter
     if (filtersToApply.myAssignedLeads && currentUser) {
@@ -300,7 +335,9 @@ const LeadManagement = () => {
       assignedUserId: '',
       creatorId: '',
       myAssignedLeads: false,
-      myCreatedLeads: false
+      myCreatedLeads: false,
+      createdDateFrom: null,
+      createdDateTo: null
     };
     
     setFilters(clearedFilters);
@@ -378,6 +415,50 @@ const LeadManagement = () => {
     setSelectedLead(null); // Close detail modal
   };
 
+  const handleDeleteLead = async (lead) => {
+    if (window.confirm(`Bạn có chắc chắn muốn xóa lead "${lead.fullName}"? Hành động này không thể hoàn tác.`)) {
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const token = user?.token;
+        
+        if (!token) {
+          alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+          // Redirect to login or refresh token
+          window.location.href = '/login';
+          return;
+        }
+
+        const response = await axios.delete(`http://localhost:8080/api/leads/${lead.id}`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        // Refresh leads list
+        await fetchLeads();
+        
+        // Close detail modal
+        setSelectedLead(null);
+        
+        // Show success message
+        alert('Lead đã được xóa thành công!');
+      } catch (error) {
+        console.error('Error deleting lead:', error);
+        
+        if (error.response?.status === 401) {
+          alert('Phiên đăng nhập đã hết hạn hoặc không có quyền xóa. Vui lòng đăng nhập lại.');
+          // Optionally redirect to login
+          // window.location.href = '/login';
+        } else if (error.response?.status === 403) {
+          alert('Bạn không có quyền xóa lead này.');
+        } else {
+          alert('Lỗi khi xóa lead: ' + (error.response?.data?.message || error.message));
+        }
+      }
+    }
+  };
+
   // Helper functions
   const getProvinceLabel = (provinceName) => {
     const province = provinces.find(p => p.name === provinceName);
@@ -439,10 +520,24 @@ const LeadManagement = () => {
       </div>
 
       {/* Lead Count Badge */}
-      <div className="mb-3">
-        <span className="badge bg-primary fs-6 px-3 py-2">
-          All ({filteredLeads.length})
-        </span>
+      <div className="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+          <span className="badge bg-primary fs-6 px-3 py-2 me-2">
+            Tổng cộng: {filteredLeads.length} lead
+          </span>
+          {getAppliedFiltersCount() > 0 && (
+            <span className="badge bg-success fs-6 px-3 py-2">
+              <i className="fas fa-filter me-1"></i>
+              Đã lọc ({getAppliedFiltersCount()} bộ lọc)
+            </span>
+          )}
+        </div>
+        {filteredLeads.length > 0 && (
+          <small className="text-muted">
+            <i className="fas fa-clock me-1"></i>
+            Cập nhật: {new Date().toLocaleString('vi-VN')}
+          </small>
+        )}
       </div>
 
       {/* Compact Filter Section */}
@@ -669,6 +764,53 @@ const LeadManagement = () => {
             )}
           </div>
         </div>
+        
+        {/* Third row - Date filters */}
+        <div className="row g-2 mt-3">
+          <div className="col-md-3">
+            <label className="form-label text-muted small">Từ ngày</label>
+            <div className="position-relative">
+              <DatePicker
+                selected={filters.createdDateFrom}
+                onChange={(date) => handleFilterChange('createdDateFrom', date)}
+                className="form-control form-control-sm"
+                placeholderText="Chọn ngày bắt đầu"
+                dateFormat="dd/MM/yyyy"
+                locale="vi"
+                isClearable
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                maxDate={new Date()}
+              />
+            </div>
+          </div>
+          <div className="col-md-3">
+            <label className="form-label text-muted small">Đến ngày</label>
+            <div className="position-relative">
+              <DatePicker
+                selected={filters.createdDateTo}
+                onChange={(date) => handleFilterChange('createdDateTo', date)}
+                className="form-control form-control-sm"
+                placeholderText="Chọn ngày kết thúc"
+                dateFormat="dd/MM/yyyy"
+                locale="vi"
+                isClearable
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                minDate={filters.createdDateFrom}
+                maxDate={new Date()}
+              />
+            </div>
+          </div>
+          <div className="col-md-6 d-flex align-items-end">
+            <div className="text-muted small">
+              <i className="fas fa-info-circle me-1"></i>
+              Click vào ô ngày để mở lịch. Chọn "Từ ngày" trước, sau đó chọn "Đến ngày" (tự động giới hạn từ ngày bắt đầu)
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Lead Table */}
@@ -858,6 +1000,15 @@ const LeadManagement = () => {
                 </div>
               </div>
               <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-danger me-auto"
+                  onClick={() => handleDeleteLead(selectedLead)}
+                  title="Xóa lead này"
+                >
+                  <i className="fas fa-trash me-2"></i>
+                  Xóa
+                </button>
                 <button 
                   type="button" 
                   className="btn btn-primary"

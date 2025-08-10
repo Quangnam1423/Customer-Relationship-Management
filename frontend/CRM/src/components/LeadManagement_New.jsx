@@ -62,7 +62,9 @@ const LeadManagement = () => {
     assignedUserId: '',
     creatorId: '',
     myAssignedLeads: false,
-    myCreatedLeads: false
+    myCreatedLeads: false,
+    createdDateFrom: '',
+    createdDateTo: ''
   });
 
   // Provinces and other options
@@ -211,7 +213,8 @@ const LeadManagement = () => {
     // Apply basic text/select filters
     Object.keys(filtersToApply).forEach(filterKey => {
       const filterValue = filtersToApply[filterKey];
-      if (filterKey === 'myAssignedLeads' || filterKey === 'myCreatedLeads') {
+      if (filterKey === 'myAssignedLeads' || filterKey === 'myCreatedLeads' || 
+          filterKey === 'createdDateFrom' || filterKey === 'createdDateTo') {
         return; // Skip these special filters
       }
       
@@ -233,6 +236,34 @@ const LeadManagement = () => {
         });
       }
     });
+
+    // Apply date range filter
+    if (filtersToApply.createdDateFrom || filtersToApply.createdDateTo) {
+      filtered = filtered.filter(lead => {
+        const leadDate = new Date(lead.createdAt);
+        let matchesDateRange = true;
+
+        if (filtersToApply.createdDateFrom) {
+          const fromDate = new Date(filtersToApply.createdDateFrom);
+          fromDate.setHours(0, 0, 0, 0);
+          matchesDateRange = matchesDateRange && leadDate >= fromDate;
+        }
+
+        // If createdDateTo is not specified but createdDateFrom is, use current date as end date
+        if (filtersToApply.createdDateTo) {
+          const toDate = new Date(filtersToApply.createdDateTo);
+          toDate.setHours(23, 59, 59, 999);
+          matchesDateRange = matchesDateRange && leadDate <= toDate;
+        } else if (filtersToApply.createdDateFrom) {
+          // Default to current date if only "from date" is specified
+          const toDate = new Date();
+          toDate.setHours(23, 59, 59, 999);
+          matchesDateRange = matchesDateRange && leadDate <= toDate;
+        }
+
+        return matchesDateRange;
+      });
+    }
 
     // Apply "My Assigned Leads" filter
     if (filtersToApply.myAssignedLeads && currentUser) {
@@ -288,7 +319,9 @@ const LeadManagement = () => {
       assignedUserId: '',
       creatorId: '',
       myAssignedLeads: false,
-      myCreatedLeads: false
+      myCreatedLeads: false,
+      createdDateFrom: '',
+      createdDateTo: ''
     };
     
     setFilters(clearedFilters);
@@ -355,6 +388,29 @@ const LeadManagement = () => {
     // Đảm bảo leadStatuses đã được load
     if (leadStatuses.length === 0) {
       fetchLeadStatuses();
+    }
+  };
+
+  const handleDeleteLead = async (lead) => {
+    if (window.confirm(`Bạn có chắc chắn muốn xóa lead "${lead.fullName}"? Hành động này không thể hoàn tác.`)) {
+      try {
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        await axios.delete(`http://localhost:8080/api/leads/${lead.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Refresh leads list
+        await fetchLeads();
+        
+        // Close detail modal
+        setSelectedLead(null);
+        
+        // Show success message
+        alert('Lead đã được xóa thành công!');
+      } catch (error) {
+        console.error('Error deleting lead:', error);
+        alert('Lỗi khi xóa lead: ' + (error.response?.data?.message || error.message));
+      }
     }
   };
 
@@ -656,6 +712,58 @@ const LeadManagement = () => {
             </div>
           </div>
         </div>
+        
+        {/* Third row - Date filters */}
+        <div className="row g-2 mt-3">
+          <div className="col-md-3">
+            <label className="form-label text-muted small">Từ ngày</label>
+            <div className="position-relative">
+              <input
+                type="date"
+                className="form-control form-control-sm"
+                value={filters.createdDateFrom}
+                onChange={(e) => handleFilterChange('createdDateFrom', e.target.value)}
+                title="Từ ngày"
+              />
+              {filters.createdDateFrom && (
+                <button
+                  className="btn btn-sm position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent"
+                  onClick={() => handleFilterChange('createdDateFrom', '')}
+                  style={{ fontSize: '12px', color: '#999' }}
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="col-md-3">
+            <label className="form-label text-muted small">Đến ngày (để trống = hôm nay)</label>
+            <div className="position-relative">
+              <input
+                type="date"
+                className="form-control form-control-sm"
+                value={filters.createdDateTo}
+                onChange={(e) => handleFilterChange('createdDateTo', e.target.value)}
+                title="Đến ngày (để trống sẽ lấy ngày hiện tại)"
+              />
+              {filters.createdDateTo && (
+                <button
+                  className="btn btn-sm position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent"
+                  onClick={() => handleFilterChange('createdDateTo', '')}
+                  style={{ fontSize: '12px', color: '#999' }}
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="col-md-6 d-flex align-items-end">
+            <small className="text-muted">
+              <i className="fas fa-calendar-alt me-1"></i>
+              Lọc lead theo thời gian tạo. Nếu không chọn "Đến ngày", mặc định là ngày hôm nay.
+            </small>
+          </div>
+        </div>
       </div>
 
       {/* Lead Table */}
@@ -862,6 +970,15 @@ const LeadManagement = () => {
                 </div>
               </div>
               <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-danger me-auto"
+                  onClick={() => handleDeleteLead(selectedLead)}
+                  title="Xóa lead này"
+                >
+                  <i className="fas fa-trash me-2"></i>
+                  Xóa
+                </button>
                 <button 
                   type="button" 
                   className="btn btn-primary"
