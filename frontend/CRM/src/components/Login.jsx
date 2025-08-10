@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF, FaTwitter, FaSpinner } from "react-icons/fa";
 import AuthService from "../services/auth.service";
 import "./Login.css"; // Import custom CSS
 
 const Login = ({ setCurrentUser }) => {
+  useDocumentTitle('Login');
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

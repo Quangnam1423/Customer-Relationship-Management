@@ -1,0 +1,26 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="crmGradientSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="8" cy="8" r="7" fill="url(#crmGradientSmall)" stroke="#fff" stroke-width="1"/>
+  
+  <!-- Simplified CRM icon -->
+  <g fill="white">
+    <!-- Person 1 -->
+    <circle cx="5.5" cy="6" r="1"/>
+    <path d="M4 11c0-0.8 0.7-1.5 1.5-1.5S7 10.2 7 11v0.5H4V11z"/>
+    
+    <!-- Person 2 -->
+    <circle cx="10.5" cy="6" r="1"/>
+    <path d="M9 11c0-0.8 0.7-1.5 1.5-1.5S12 10.2 12 11v0.5H9V11z"/>
+    
+    <!-- Connection -->
+    <line x1="6.5" y1="9.5" x2="9.5" y2="9.5" stroke="white" stroke-width="0.8"/>
+    <circle cx="8" cy="9.5" r="0.5" fill="white"/>
+  </g>
+</svg>

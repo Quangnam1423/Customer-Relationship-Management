@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import AuthService from "../services/auth.service";
 import AdminDashboard from "./admin/AdminDashboard";
 import MarketingDashboard from "./dashboards/MarketingDashboard";
@@ -8,6 +9,7 @@ import UserDashboard from "./dashboards/UserDashboard";
 
 
 const Dashboard = () => {
+  useDocumentTitle('Dashboard');
   const [currentUser, setCurrentUser] = useState(undefined);
 
   useEffect(() => {

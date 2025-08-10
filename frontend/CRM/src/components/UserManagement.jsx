@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 import { 
   FaUsers, FaPlus, FaEdit, FaTrash, FaEye, FaUserShield, FaSearch, 
   FaFilter, FaDownload, FaUserPlus, FaTimes, FaSave, FaArrowLeft, FaToggleOn, FaToggleOff 
@@ -9,6 +10,7 @@ import AuthService from '../services/auth.service';
 import './UserManagement.css';
 
 const UserManagement = () => {
+  useDocumentTitle('User Management');
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);

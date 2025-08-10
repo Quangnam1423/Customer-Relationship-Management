@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 import { FaUser, FaEnvelope, FaPhone, FaBuilding, FaEdit, FaSave, FaTimes, FaCamera, FaUserShield, FaKey } from 'react-icons/fa';
 import AuthService from '../services/auth.service';
 import axios from 'axios';
 import './Profile.css';
 
 const Profile = ({ currentUser }) => {
+  useDocumentTitle('My Profile');
   const user = currentUser || AuthService.getCurrentUser();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
