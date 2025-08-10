@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { FaUser, FaEnvelope, FaLock, FaCheckCircle, FaSpinner } from "react-icons/fa";
 import AuthService from "../services/auth.service";
 import "./Register.css"; // Import custom CSS
 
@@ -68,7 +69,7 @@ const Register = () => {
                   <label htmlFor="username">Username</label>
                   <div className="input-group">
                     <div className="input-group-prepend">
-                      <span className="input-group-text"><i className="fas fa-user"></i></span>
+                      <span className="input-group-text"><FaUser /></span>
                     </div>
                     <input
                       type="text"
@@ -85,7 +86,7 @@ const Register = () => {
                   <label htmlFor="email">Email</label>
                   <div className="input-group">
                     <div className="input-group-prepend">
-                      <span className="input-group-text"><i className="fas fa-envelope"></i></span>
+                      <span className="input-group-text"><FaEnvelope /></span>
                     </div>
                     <input
                       type="email"
@@ -102,7 +103,7 @@ const Register = () => {
                   <label htmlFor="password">Password</label>
                   <div className="input-group">
                     <div className="input-group-prepend">
-                      <span className="input-group-text"><i className="fas fa-lock"></i></span>
+                      <span className="input-group-text"><FaLock /></span>
                     </div>
                     <input
                       type="password"
@@ -119,7 +120,7 @@ const Register = () => {
                   <label htmlFor="confirmPassword">Confirm Password</label>
                   <div className="input-group">
                     <div className="input-group-prepend">
-                      <span className="input-group-text"><i className="fas fa-check-circle"></i></span>
+                      <span className="input-group-text"><FaCheckCircle /></span>
                     </div>
                     <input
                       type="password"
@@ -134,7 +135,7 @@ const Register = () => {
                 </div>
                 <div className="form-group">
                   <button className="btn btn-primary btn-block" disabled={loading}>
-                    {loading && <span className="spinner-border spinner-border-sm"></span>}
+                    {loading && <FaSpinner className="fa-spin me-2" />}
                     <span>Sign Up</span>
                   </button>
                 </div>

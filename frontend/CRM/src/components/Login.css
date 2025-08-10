@@ -45,6 +45,38 @@
   color: #777;
 }
 
+/* React Icons styling */
+.input-group-text svg {
+  width: 16px;
+  height: 16px;
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.input-group-text:hover svg {
+  color: #007bff;
+}
+
+.social-icon svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease;
+}
+
+.social-icon:hover svg {
+  transform: scale(1.1);
+}
+
+/* Spinner animation for React Icons */
+.fa-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .login-form-section .form-group {
   margin-bottom: 20px;
 }
@@ -52,16 +84,44 @@
 .login-form-section .input-group-text {
   background-color: #f8f9fa;
   border-right: 0;
+  transition: all 0.3s ease;
+}
+
+.login-form-section .input-group:focus-within .input-group-text {
+  background-color: #e3f2fd;
+  border-color: #007bff;
+}
+
+.login-form-section .input-group:focus-within .input-group-text svg {
+  color: #007bff;
+  transform: scale(1.1);
 }
 
 .login-form-section .form-control {
   border-left: 0;
   padding-left: 0;
+  transition: all 0.3s ease;
 }
 
 .login-form-section .form-control:focus {
-  box-shadow: none;
-  border-color: #ced4da;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #007bff;
+}
+
+/* Password visibility toggle enhancement */
+.input-group-append .input-group-text {
+  cursor: pointer;
+  background-color: #f8f9fa;
+  border-left: 0;
+  transition: all 0.3s ease;
+}
+
+.input-group-append .input-group-text:hover {
+  background-color: #e9ecef;
+}
+
+.input-group-append .input-group-text:hover svg {
+  color: #007bff;
 }
 
 .forgot-password-link {

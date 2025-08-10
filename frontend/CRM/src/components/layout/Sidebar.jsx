@@ -8,6 +8,8 @@ const Sidebar = ({ currentUser, onLogout }) => {
     let items = [
       { path: '/dashboard', icon: 'fa-home', label: 'Overview' },
       { path: '/profile', icon: 'fa-user', label: 'My Profile' },
+      { path: '/statistics', icon: 'fa-chart-pie', label: 'Statistics' },
+      { path: '/export', icon: 'fa-file-excel', label: 'Export Excel' },
     ];
 
     if (level >= 8) { // Admin

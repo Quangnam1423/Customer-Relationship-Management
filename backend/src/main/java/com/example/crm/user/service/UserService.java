@@ -9,6 +9,7 @@ import com.example.crm.user.model.Role;
 import com.example.crm.user.model.User;
 import com.example.crm.user.repository.UserRepository;
 import com.example.crm.user.dto.UpdateUserRequest;
+import com.example.crm.user.dto.UpdateProfileRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -112,5 +113,59 @@ public class UserService {
         dto.setFullName(user.getFullName());
         dto.setPhoneNumber(user.getPhoneNumber());
         return dto;
+    }
+
+    public User updateProfile(Long userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Update fields if provided
+        if (request.getFullName() != null) {
+            user.setFullName(request.getFullName());
+        }
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
+            if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+                throw new IllegalArgumentException("Phone number already exists");
+            }
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        return userRepository.save(user);
+    }
+
+    public User updateProfile(Long userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Update fields if provided
+        if (request.getFullName() != null) {
+            user.setFullName(request.getFullName());
+        }
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
+            if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+                throw new IllegalArgumentException("Phone number already exists");
+            }
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+        if (request.getCompany() != null) {
+            user.setCompany(request.getCompany());
+        }
+        if (request.getBio() != null) {
+            user.setBio(request.getBio());
+        }
+
+        return userRepository.save(user);
     }
 }

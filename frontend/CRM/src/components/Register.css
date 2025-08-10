@@ -37,6 +37,28 @@
   color: #333;
 }
 
+/* React Icons styling for Register */
+.input-group-text svg {
+  width: 16px;
+  height: 16px;
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.input-group-text:hover svg {
+  color: #007bff;
+}
+
+/* Spinner animation for React Icons */
+.fa-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .register-form-section .form-group {
   margin-bottom: 20px;
 }
@@ -44,16 +66,28 @@
 .register-form-section .input-group-text {
   background-color: #f8f9fa;
   border-right: 0;
+  transition: all 0.3s ease;
+}
+
+.register-form-section .input-group:focus-within .input-group-text {
+  background-color: #e3f2fd;
+  border-color: #007bff;
+}
+
+.register-form-section .input-group:focus-within .input-group-text svg {
+  color: #007bff;
+  transform: scale(1.1);
 }
 
 .register-form-section .form-control {
   border-left: 0;
   padding-left: 0;
+  transition: all 0.3s ease;
 }
 
 .register-form-section .form-control:focus {
-  box-shadow: none;
-  border-color: #ced4da;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #007bff;
 }
 
 .btn-primary {

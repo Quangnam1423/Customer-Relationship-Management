@@ -7,8 +7,12 @@ import AuthService from './services/auth.service';
 import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import Profile from './components/Profile';
 import Dashboard from './components/Dashboard';
+import Statistics from './components/Statistics';
+import Export from './components/Export';
 import DashboardLayout from './components/layout/DashboardLayout';
 
 function App() {
@@ -71,6 +75,8 @@ function App() {
           <Routes>
             <Route path="/dashboard/*" element={<Dashboard currentUser={currentUser} />} />
             <Route path="/profile" element={<Profile currentUser={currentUser} />} />
+            <Route path="/statistics" element={<Statistics currentUser={currentUser} />} />
+            <Route path="/export" element={<Export currentUser={currentUser} />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
@@ -97,6 +103,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login setCurrentUser={handleLogin} />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </>

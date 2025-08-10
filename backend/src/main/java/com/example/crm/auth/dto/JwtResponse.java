@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 public class JwtResponse {
     private String token;
+    private String accessToken;
     private String type = "Bearer";
     private Long id;
     private String username;
@@ -18,6 +19,7 @@ public class JwtResponse {
 
     public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles, int permissionLevel) {
         this.token = accessToken;
+        this.accessToken = accessToken;
         this.id = id;
         this.username = username;
         this.email = email;

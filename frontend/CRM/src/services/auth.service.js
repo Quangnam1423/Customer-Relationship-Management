@@ -10,7 +10,11 @@ class AuthService {
         password
       })
       .then(response => {
-        if (response.data.token) {
+        if (response.data.token || response.data.accessToken) {
+          // Ensure both token and accessToken are available for consistency
+          const token = response.data.token || response.data.accessToken;
+          response.data.token = token;
+          response.data.accessToken = token;
           localStorage.setItem('user', JSON.stringify(response.data));
           console.log('User data saved to localStorage:', response.data);
         }
@@ -49,13 +53,19 @@ class AuthService {
   // Check if user is authenticated and token is valid
   isAuthenticated() {
     const user = this.getCurrentUser();
-    if (!user || !user.token) {
+    if (!user) {
+      return false;
+    }
+
+    // Check if we have a token
+    const token = user.token || user.accessToken;
+    if (!token) {
       return false;
     }
 
     // Check if token is expired (optional - implement JWT decode if needed)
     try {
-      const tokenPayload = JSON.parse(atob(user.token.split('.')[1]));
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Date.now() / 1000;
       
       if (tokenPayload.exp < currentTime) {
@@ -88,13 +98,14 @@ class AuthService {
   // Verify token with backend (optional)
   verifyToken() {
     const user = this.getCurrentUser();
-    if (!user || !user.token) {
+    const token = user?.token || user?.accessToken;
+    if (!user || !token) {
       return Promise.reject('No token found');
     }
 
     return axios.get(API_URL + 'verify', {
       headers: {
-        'Authorization': 'Bearer ' + user.token
+        'Authorization': 'Bearer ' + token
       }
     }).then(response => {
       return response.data;

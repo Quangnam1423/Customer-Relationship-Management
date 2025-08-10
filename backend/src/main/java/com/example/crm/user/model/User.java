@@ -48,6 +48,11 @@ public class User {
 
     private String department;
 
+    private String company;
+
+    @Column(length = 1000)
+    private String bio;
+
     private String fullName;
 
     private String avatar;

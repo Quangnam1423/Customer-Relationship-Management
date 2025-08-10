@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF, FaTwitter, FaSpinner } from "react-icons/fa";
 import AuthService from "../services/auth.service";
 import "./Login.css"; // Import custom CSS
 
@@ -52,7 +53,7 @@ const Login = ({ setCurrentUser }) => {
               <div className="input-group">
                 <div className="input-group-prepend">
                   <span className="input-group-text">
-                    <i className="fas fa-user"></i>
+                    <FaUser />
                   </span>
                 </div>
                 <input
@@ -71,7 +72,7 @@ const Login = ({ setCurrentUser }) => {
               <div className="input-group">
                 <div className="input-group-prepend">
                   <span className="input-group-text">
-                    <i className="fas fa-lock"></i>
+                    <FaLock />
                   </span>
                 </div>
                 <input
@@ -89,11 +90,7 @@ const Login = ({ setCurrentUser }) => {
                     onClick={() => setShowPassword(!showPassword)}
                     style={{ cursor: "pointer" }}
                   >
-                    <i
-                      className={
-                        showPassword ? "fas fa-eye-slash" : "fas fa-eye"
-                      }
-                    ></i>
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
               </div>
@@ -109,14 +106,14 @@ const Login = ({ setCurrentUser }) => {
                   Remember me
                 </label>
               </div>
-              <a href="#" className="forgot-password-link">
+              <a href="/forgot-password" className="forgot-password-link">
                 Forgot password?
               </a>
             </div>
             <div className="form-group">
               <button className="btn btn-primary btn-block" disabled={loading}>
                 {loading && (
-                  <span className="spinner-border spinner-border-sm"></span>
+                  <FaSpinner className="fa-spin me-2" />
                 )}
                 <span>Login</span>
               </button>
@@ -133,13 +130,13 @@ const Login = ({ setCurrentUser }) => {
             <p>Or sign in with</p>
             <div className="social-icons">
               <a href="#" className="social-icon">
-                <i className="fab fa-google"></i>
+                <FaGoogle />
               </a>
               <a href="#" className="social-icon">
-                <i className="fab fa-facebook-f"></i>
+                <FaFacebookF />
               </a>
               <a href="#" className="social-icon">
-                <i className="fab fa-twitter"></i>
+                <FaTwitter />
               </a>
             </div>
           </div>
