@@ -13,6 +13,8 @@ import Profile from './components/Profile';
 import Dashboard from './components/Dashboard';
 import Statistics from './components/Statistics';
 import Export from './components/Export';
+import UserManagement from './components/UserManagement';
+import LeadManagement from './components/LeadManagement';
 import DashboardLayout from './components/layout/DashboardLayout';
 
 function App() {
@@ -77,6 +79,12 @@ function App() {
             <Route path="/profile" element={<Profile currentUser={currentUser} />} />
             <Route path="/statistics" element={<Statistics currentUser={currentUser} />} />
             <Route path="/export" element={<Export currentUser={currentUser} />} />
+            <Route path="/dashboard/leads" element={<LeadManagement currentUser={currentUser} />} />
+            <Route path="/dashboard/users" element={
+              (currentUser?.permissionLevel >= 8 || currentUser?.roles?.includes('ROLE_ADMIN')) ? 
+              <UserManagement currentUser={currentUser} /> : 
+              <Navigate to="/dashboard" replace />
+            } />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

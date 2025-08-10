@@ -81,11 +81,12 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/validate-reset-token").permitAll()
                                 .requestMatchers("/api/auth/change-password").authenticated()
                                 .requestMatchers("/api/test/**").permitAll()
-                                .requestMatchers("/api/leads/**").permitAll()
+                                .requestMatchers("/api/leads/**").authenticated()
                                 .requestMatchers("/api/provinces/**").permitAll()
-                                .requestMatchers("/api/statistics/**").permitAll()
-                                .requestMatchers("/api/export/**").permitAll()
+                                .requestMatchers("/api/statistics/**").authenticated()
+                                .requestMatchers("/api/export/**").authenticated()
                                 .requestMatchers("/api/users/**").authenticated()
+                                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                 );
 

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import LeadManagement from "../LeadManagement";
 import UserManagement from "./UserManagement";
 import SystemSettings from "./SystemSettings";
 import ReportsView from "./ReportsView";
 import "./AdminDashboard.css";
 
 const AdminDashboard = ({ currentUser }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [stats, setStats] = useState({
     totalUsers: 156,
@@ -40,6 +43,8 @@ const AdminDashboard = ({ currentUser }) => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "leads":
+        return <LeadManagement />;
       case "users":
         return <UserManagement />;
       case "settings":
@@ -148,10 +153,19 @@ const AdminDashboard = ({ currentUser }) => {
                 <div className="col-md-3 mb-3">
                   <button 
                     className="btn btn-primary btn-block"
-                    onClick={() => setActiveTab("users")}
+                    onClick={() => navigate('/dashboard/users')}
                   >
                     <i className="fas fa-users-cog mr-2"></i>
                     Manage Users
+                  </button>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <button 
+                    className="btn btn-info btn-block"
+                    onClick={() => navigate('/dashboard/leads')}
+                  >
+                    <i className="fas fa-user-plus mr-2"></i>
+                    Manage Leads
                   </button>
                 </div>
                 <div className="col-md-3 mb-3">
@@ -268,7 +282,7 @@ const AdminDashboard = ({ currentUser }) => {
     </div>
   );
 
-  if (!currentUser || currentUser.permissionLevel < 1) {
+  if (!currentUser || (currentUser.permissionLevel < 8 && !currentUser.roles?.includes('ROLE_ADMIN'))) {
     return (
       <div className="container-fluid mt-4">
         <div className="alert alert-danger">
@@ -302,6 +316,15 @@ const AdminDashboard = ({ currentUser }) => {
               >
                 <i className="fas fa-tachometer-alt mr-2"></i>
                 Overview
+              </button>
+            </li>
+            <li className="nav-item">
+              <button 
+                className={`nav-link ${activeTab === "leads" ? "active" : ""}`}
+                onClick={() => setActiveTab("leads")}
+              >
+                <i className="fas fa-user-plus mr-2"></i>
+                Lead Management
               </button>
             </li>
             <li className="nav-item">

@@ -5,6 +5,9 @@ import './Sidebar.css'; // We will create this file for styling
 const Sidebar = ({ currentUser, onLogout }) => {
   const getMenuItems = () => {
     const level = currentUser?.permissionLevel ?? 0;
+    const roles = currentUser?.roles || [];
+    const isAdmin = level >= 8 || roles.includes('ROLE_ADMIN');
+    
     let items = [
       { path: '/dashboard', icon: 'fa-home', label: 'Overview' },
       { path: '/profile', icon: 'fa-user', label: 'My Profile' },
@@ -12,19 +15,26 @@ const Sidebar = ({ currentUser, onLogout }) => {
       { path: '/export', icon: 'fa-file-excel', label: 'Export Excel' },
     ];
 
-    if (level >= 8) { // Admin
+    // Admin has all permissions
+    if (isAdmin) { 
+      items.push({ path: '/dashboard/leads', icon: 'fa-user-plus', label: 'Leads' });
+      items.push({ path: '/dashboard/opportunities', icon: 'fa-briefcase', label: 'Opportunities' });
+      items.push({ path: '/dashboard/campaigns', icon: 'fa-bullhorn', label: 'Campaigns' });
+      items.push({ path: '/dashboard/calls', icon: 'fa-phone', label: 'Call Queues' });
       items.push({ path: '/dashboard/users', icon: 'fa-users-cog', label: 'User Management' });
       items.push({ path: '/dashboard/settings', icon: 'fa-cogs', label: 'System Settings' });
     }
-    if (level >= 4) { // Marketing
+    else if (level >= 4 || roles.includes('ROLE_MARKETING')) { // Marketing
       items.push({ path: '/dashboard/campaigns', icon: 'fa-bullhorn', label: 'Campaigns' });
+      items.push({ path: '/dashboard/leads', icon: 'fa-user-plus', label: 'Leads' });
     }
-    if (level >= 2) { // Sales
+    else if (level >= 2 || roles.includes('ROLE_SALES')) { // Sales
       items.push({ path: '/dashboard/leads', icon: 'fa-user-plus', label: 'Leads' });
       items.push({ path: '/dashboard/opportunities', icon: 'fa-briefcase', label: 'Opportunities' });
     }
-    if (level >= 1) { // Telesales
+    else if (level >= 1 || roles.includes('ROLE_TELESALES')) { // Telesales
         items.push({ path: '/dashboard/calls', icon: 'fa-phone', label: 'Call Queues' });
+        items.push({ path: '/dashboard/leads', icon: 'fa-user-plus', label: 'Leads' });
     }
 
     return items;

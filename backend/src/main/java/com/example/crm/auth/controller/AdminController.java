@@ -1,7 +1,10 @@
 package com.example.crm.auth.controller;
 
 import com.example.crm.user.model.User;
+import com.example.crm.user.model.Role;
+import com.example.crm.user.model.ERole;
 import com.example.crm.user.repository.UserRepository;
+import com.example.crm.user.repository.RoleRepository;
 import com.example.crm.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,9 @@ public class AdminController {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private RoleRepository roleRepository;
 
     /**
      * Lấy danh sách tất cả users (chỉ admin)
@@ -93,6 +99,47 @@ public class AdminController {
         return ResponseEntity.ok(new MessageResponse("User deleted successfully"));
     }
 
+    /**
+     * Cập nhật quyền user
+     */
+    @PutMapping("/users/{userId}/permission")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUserPermission(@PathVariable Long userId, @RequestBody UpdatePermissionRequest request) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Clear existing roles
+        user.getRoles().clear();
+        
+        // Add new role
+        Role role = roleRepository.findByName(ERole.valueOf(request.getRole()))
+            .orElseThrow(() -> new RuntimeException("Role not found"));
+        user.getRoles().add(role);
+        
+        // Update permission level based on role
+        switch (request.getRole()) {
+            case "ROLE_ADMIN":
+                user.setPermissionLevel(8);
+                break;
+            case "ROLE_MARKETING":
+                user.setPermissionLevel(4);
+                break;
+            case "ROLE_SALES":
+                user.setPermissionLevel(2);
+                break;
+            case "ROLE_TELESALES":
+                user.setPermissionLevel(1);
+                break;
+            case "ROLE_USER":
+            default:
+                user.setPermissionLevel(0);
+                break;
+        }
+        
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("User permission updated successfully"));
+    }
+
     // DTO classes
     public static class AdminStats {
         private long totalUsers;
@@ -131,5 +178,12 @@ public class AdminController {
 
         public String getMessage() { return message; }
         public void setMessage(String message) { this.message = message; }
+    }
+
+    public static class UpdatePermissionRequest {
+        private String role;
+
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
     }
 }
